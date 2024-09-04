@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { authenticate, setAuthToken } from '@/lib/services/crefazApi';
+import { authenticate, setAuthToken } from '../../lib/services/crefazApi';
 
 export async function GET() {
   try {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { cadastrarProposta } from '@/lib/services/crefazApi';
+import { cadastrarProposta } from '../../lib/services/crefazApi';
 
 export async function POST(request) {
   try {

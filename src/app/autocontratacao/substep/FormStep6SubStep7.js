@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { submitForm } from '../../servicos/api';
+import { submitForm } from '../../lib/services/crefazApi';
 
 const FileUploadField = ({ label, name, acceptedFileTypes, value, onChange, error }) => {
   return (
