@@ -3,31 +3,150 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --color-primary: #4caf50;
+  --color-primary-light: #81c784;
+  --color-primary-dark: #388e3c;
+  --color-secondary: #ffd600;
+  --color-secondary-light: #ffea00;
+  --color-secondary-dark: #ffc400;
+  --color-background: #ffffff;
+  --color-text: #333333;
+  --color-text-light: #666666;
 }
+@keyframes myAnim {
+  0% {
+    animation-timing-function: ease-in;
+    opacity: 0;
+    transform: translateX(-250px);
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+  38% {
+    animation-timing-function: ease-out;
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  55% {
+    animation-timing-function: ease-in;
+    transform: translateX(-68px);
+  }
+
+  72% {
+    animation-timing-function: ease-out;
+    transform: translateX(0);
+  }
+
+  81% {
+    animation-timing-function: ease-in;
+    transform: translateX(-28px);
+  }
+
+  90% {
+    animation-timing-function: ease-out;
+    transform: translateX(0);
+  }
+
+  95% {
+    animation-timing-function: ease-in;
+    transform: translateX(-8px);
+  }
+
+  100% {
+    animation-timing-function: ease-out;
+    transform: translateX(0);
+  }
+}
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-green-50 to-yellow-50 min-h-screen;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@layer components {
+  .form-container {
+    @apply max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-2xl border-t-8 border-secondary;
+    background: linear-gradient(135deg, white 0%, var(--color-background) 100%);
+  }
+
+  .form-section {
+    @apply space-y-6;
+  }
+
+  .form-section-title {
+    @apply text-3xl font-bold mb-6 text-primary text-center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .form-field {
+    @apply mb-6;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-primary-dark mb-2;
+  }
+
+  .form-input,
+  .form-select {
+    @apply w-full px-4 py-3 border-2 border-primary-light rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition duration-300 ease-in-out;
+  }
+
+  .form-input:disabled,
+  .form-select:disabled {
+    @apply bg-gray-100 cursor-not-allowed;
+  }
+
+  .form-button {
+    @apply px-6 py-3 rounded-full font-bold text-white transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4;
+  }
+
+  .form-button-primary {
+    @apply bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary shadow-lg;
+  }
+
+  .form-button-secondary {
+    @apply bg-gradient-to-r from-secondary to-secondary-dark hover:from-secondary-dark hover:to-secondary text-primary-dark shadow-lg;
+  }
+
+  .form-error {
+    @apply text-red-500 text-sm mt-1;
+  }
+
+  .info-box {
+    @apply mt-6 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-700 rounded-r-lg;
+  }
+
+  .warning-box {
+    @apply mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 rounded-r-lg;
+  }
+
+  .progress-bar {
+    @apply w-full h-4 bg-gray-200 rounded-full overflow-hidden mb-8;
+  }
+
+  .progress-bar-fill {
+    @apply h-full bg-gradient-to-r from-secondary to-primary transition-all duration-500 ease-out;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-shadow duration-300;
+    background: linear-gradient(135deg, white 0%, var(--color-background) 100%);
+  }
+
+  .nav-link {
+    @apply text-primary-dark hover:text-secondary transition duration-300 ease-in-out;
+  }
+
+  .highlight-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-bold;
+  }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .text-shadow {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .hover-lift {
+    @apply transition-transform duration-300 ease-in-out hover:-translate-y-1;
   }
 }
