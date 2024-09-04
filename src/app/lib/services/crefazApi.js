@@ -1,28 +1,58 @@
 import axios from 'axios';
 
 const crefazApi = axios.create({
-  baseURL: process.env.CREFAZ_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_CREFAZ_API_URL,
 });
 
+let authToken = null;
+
 export const authenticate = async () => {
-  const response = await crefazApi.post('/Usuario/login', {
-    login: process.env.CREFAZ_LOGIN,
-    senha: process.env.CREFAZ_SENHA,
-    apiKey: process.env.CREFAZ_API_KEY,
-  });
-  return response.data.token;
+  try {
+    const response = await crefazApi.post('/Usuario/login', {
+      login: process.env.NEXT_PUBLIC_CREFAZ_LOGIN,
+      senha: process.env.NEXT_PUBLIC_CREFAZ_SENHA,
+      apiKey: process.env.NEXT_PUBLIC_CREFAZ_API_KEY,
+    });
+    authToken = response.data.token;
+    crefazApi.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+    return authToken;
+  } catch (error) {
+    console.error('Erro na autenticação:', error);
+    throw error;
+  }
 };
 
-export const setAuthToken = token => {
-  crefazApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+export const getOcupacoes = async () => {
+  try {
+    if (!authToken) await authenticate();
+    const response = await crefazApi.get('/Contexto/Ocupacao');
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao obter ocupações:', error);
+    throw error;
+  }
 };
 
-// Implemente funções para cada endpoint da API Crefaz
-export const cadastrarProposta = async data => {
-  const response = await crefazApi.post('/Proposta', data);
-  return response.data;
+export const getCidadeId = async (uf, cidade) => {
+  try {
+    if (!authToken) await authenticate();
+    const response = await crefazApi.post('/Endereco/Cidade', { uf, nomeCidade: cidade });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao obter ID da cidade:', error);
+    throw error;
+  }
 };
 
-// ... outras funções para diferentes endpoints
+export const cadastrarProposta = async dados => {
+  try {
+    if (!authToken) await authenticate();
+    const response = await crefazApi.post('/Proposta', dados);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao cadastrar proposta:', error);
+    throw error;
+  }
+};
 
 export default crefazApi;

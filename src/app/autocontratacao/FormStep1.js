@@ -1,17 +1,60 @@
-'use client';
-
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const FormStep1 = ({ nextStep, handleChange, values }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async e => {
     e.preventDefault();
     setIsLoading(true);
-    // Simular uma consulta
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsLoading(false);
-    nextStep();
+    setError('');
+
+    try {
+      console.log('Enviando CPF:', values.cpf);
+      const response = await axios.post('../api/pre-analise', { cpf: values.cpf });
+      console.log('Resposta completa:', response);
+      console.log('Dados da resposta:', response.data);
+
+      if (response.data.status === 'existente') {
+        console.log('Proposta existente encontrada');
+        // Preencher os dados do formulário com os dados da proposta existente
+        if (response.data.proposta) {
+          Object.entries(response.data.proposta).forEach(([key, value]) => {
+            handleChange(key, value);
+          });
+        } else {
+          console.warn('Proposta existente, mas sem dados');
+        }
+      } else if (response.data.status === 'nova') {
+        console.log('Nova proposta criada');
+      } else {
+        console.warn('Status de resposta inesperado:', response.data.status);
+      }
+
+      // Salvar o ID da proposta (seja nova ou existente) no estado global
+      if (response.data.propostaId) {
+        handleChange('propostaId', response.data.propostaId);
+      } else {
+        throw new Error('ID da proposta não recebido');
+      }
+
+      nextStep();
+    } catch (error) {
+      console.error('Erro detalhado:', error);
+      if (error.response) {
+        // O servidor respondeu com um status fora do intervalo 2xx
+        setError(`Erro do servidor: ${error.response.data.error || error.response.statusText}`);
+      } else if (error.request) {
+        // A requisição foi feita mas não houve resposta
+        setError('Não foi possível conectar ao servidor. Por favor, verifique sua conexão.');
+      } else {
+        // Algo aconteceu na configuração da requisição que causou o erro
+        setError(`Erro: ${error.message}`);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -43,12 +86,12 @@ const FormStep1 = ({ nextStep, handleChange, values }) => {
           </p>
         </div>
 
+        {error && <p className="text-red-500">{error}</p>}
+
         <div className="form-field">
           <button
             type="submit"
-            className={`form-button form-button-primary w-full ${
-              isLoading ? 'opacity-75 cursor-not-allowed' : ''
-            }`}
+            className={`form-button form-button-primary w-full ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
             disabled={isLoading}
           >
             {isLoading ? (
@@ -91,5 +134,4 @@ const FormStep1 = ({ nextStep, handleChange, values }) => {
     </div>
   );
 };
-
 export default FormStep1;
