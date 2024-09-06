@@ -2,174 +2,218 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
+import { makeApiCall } from '../api/auth/crefazApi';
+import { saveProposta } from '../lib/services/dbService';
 
 const FormStep3 = ({ nextStep, prevStep, handleChange, values }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    nextStep();
-  };
-
   const handleCepChange = async e => {
-    const value = e.target.value.replace(/\D/g, '');
-    const cepFormatted = value.replace(/^(\d{5})(\d)/, '$1-$2').slice(0, 9);
-    handleChange('cep', cepFormatted);
+    const cep = e.target.value.replace(/\D/g, '');
+    handleChange('cep', cep);
 
-    if (value.length === 8) {
+    if (cep.length === 8) {
       setLoading(true);
-      setError('');
       try {
-        const response = await axios.get(`https://viacep.com.br/ws/${value}/json/`);
-        if (response.data.erro) {
-          setError('CEP não encontrado');
-        } else {
+        const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
+        if (!response.data.erro) {
           handleChange('logradouro', response.data.logradouro);
           handleChange('bairro', response.data.bairro);
           handleChange('cidade', response.data.localidade);
           handleChange('uf', response.data.uf);
+
+          // Buscar cidadeId da API
+          const cidadeResponse = await makeApiCall('post', '/Endereco/Cidade', {
+            nomeCidade: response.data.localidade,
+            uf: response.data.uf,
+          });
+
+          if (cidadeResponse.success && cidadeResponse.data.length > 0) {
+            handleChange('cidadeId', cidadeResponse.data[0].cidadeId);
+          } else {
+            throw new Error('Não foi possível obter o ID da cidade');
+          }
+        } else {
+          setError('CEP não encontrado');
         }
       } catch (error) {
-        setError('Erro ao buscar CEP');
+        console.error('Erro ao buscar CEP ou cidade:', error);
+        setError('Erro ao buscar informações do CEP ou cidade');
       } finally {
         setLoading(false);
       }
     }
   };
 
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      // Formatar dados da proposta
+      const propostaData = {
+        nome: values.nome,
+        cpf: values.cpf.replace(/\D/g, ''),
+        nascimento: new Date(values.dataNascimento).toISOString().split('T')[0],
+        telefone: values.telefone.replace(/\D/g, ''),
+        ocupacaoId: Number(values.ocupacao),
+        cidadeId: values.cidadeId,
+        cep: values.cep.replace(/\D/g, ''),
+        bairro: values.bairro,
+        logradouro: values.logradouro,
+        urlNotificacaoParceiro: 'https://unkempt-yacht-08.webhook.cool',
+      };
+
+      console.log('Dados da proposta a serem enviados:', propostaData);
+
+      // Cadastrar proposta na API externa
+      console.log('Cadastrando proposta na API externa...');
+      const propostaResponse = await makeApiCall('post', '/Proposta', propostaData);
+
+      console.log('Resposta do cadastro de proposta:', propostaResponse);
+
+      if (!propostaResponse.success) {
+        throw new Error(
+          propostaResponse.errors
+            ? propostaResponse.errors.join(', ')
+            : 'Falha ao cadastrar proposta'
+        );
+      }
+
+      // Salvar proposta no MongoDB
+      console.log('Salvando proposta no MongoDB...');
+      const mongoDbData = {
+        ...propostaData,
+        propostaId: propostaResponse.data.propostaId,
+        aprovado: propostaResponse.data.aprovado,
+      };
+      try {
+        await saveProposta(mongoDbData);
+        console.log('Proposta salva com sucesso no MongoDB');
+      } catch (mongoError) {
+        console.error('Erro ao salvar no MongoDB:', mongoError);
+        // Aqui você pode decidir se quer continuar ou não
+        // Por exemplo, você pode exibir um aviso ao usuário, mas ainda permitir que ele continue
+        setError(
+          'Aviso: Proposta cadastrada, mas houve um erro ao salvar localmente. Isto não afeta seu empréstimo.'
+        );
+      }
+
+      handleChange('propostaId', propostaResponse.data.propostaId);
+      nextStep();
+    } catch (error) {
+      console.error('Erro ao processar formulário:', error);
+      setError(
+        error.message || 'Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="form-section fade-in">
-      <h2 className="form-section-title">Pré-Análise (Etapa 3)</h2>
-      <p className="text-text-light mb-6">
-        Vamos precisar do seu endereço. Digite seu CEP e preencheremos os dados automaticamente.
-      </p>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="form-field">
+        <label htmlFor="cep" className="form-label">
+          CEP
+        </label>
+        <input
+          type="text"
+          id="cep"
+          name="cep"
+          value={values.cep || ''}
+          onChange={handleCepChange}
+          className="form-input"
+          placeholder="00000-000"
+          required
+        />
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="form-field">
-          <label htmlFor="cep" className="form-label">
-            CEP*
-          </label>
-          <input
-            type="text"
-            id="cep"
-            name="cep"
-            value={values.cep || ''}
-            onChange={handleCepChange}
-            className="form-input"
-            placeholder="00000-000"
-            maxLength="9"
-            required
-          />
-          <p className="form-helper-text">Digite apenas números</p>
+      <div className="form-field">
+        <label htmlFor="logradouro" className="form-label">
+          Logradouro
+        </label>
+        <input
+          type="text"
+          id="logradouro"
+          name="logradouro"
+          value={values.logradouro || ''}
+          onChange={e => handleChange('logradouro', e.target.value)}
+          className="form-input"
+          required
+        />
+      </div>
+
+      <div className="form-field">
+        <label htmlFor="bairro" className="form-label">
+          Bairro
+        </label>
+        <input
+          type="text"
+          id="bairro"
+          name="bairro"
+          value={values.bairro || ''}
+          onChange={e => handleChange('bairro', e.target.value)}
+          className="form-input"
+          required
+        />
+      </div>
+
+      <div className="form-field">
+        <label htmlFor="cidade" className="form-label">
+          Cidade
+        </label>
+        <input
+          type="text"
+          id="cidade"
+          name="cidade"
+          value={values.cidade || ''}
+          onChange={e => handleChange('cidade', e.target.value)}
+          className="form-input"
+          required
+          readOnly
+        />
+      </div>
+
+      <div className="form-field">
+        <label htmlFor="uf" className="form-label">
+          UF
+        </label>
+        <input
+          type="text"
+          id="uf"
+          name="uf"
+          value={values.uf || ''}
+          onChange={e => handleChange('uf', e.target.value)}
+          className="form-input"
+          required
+          readOnly
+        />
+      </div>
+
+      <div className="flex justify-between mt-8">
+        <button
+          type="button"
+          onClick={prevStep}
+          className="form-button form-button-secondary"
+          disabled={loading}
+        >
+          Voltar
+        </button>
+        <button type="submit" className="form-button form-button-primary" disabled={loading}>
+          {loading ? 'Processando...' : 'Enviar Proposta'}
+        </button>
+      </div>
+
+      {error && (
+        <div className="mt-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+          <p className="font-bold">Erro</p>
+          <p>{error}</p>
         </div>
-
-        {loading && (
-          <div className="text-yellow-600 flex items-center">
-            <svg
-              className="animate-spin -ml-1 mr-3 h-5 w-5"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Buscando endereço...
-          </div>
-        )}
-        {error && <p className="text-error">{error}</p>}
-
-        <div className="form-field">
-          <label htmlFor="logradouro" className="form-label">
-            Logradouro
-          </label>
-          <input
-            type="text"
-            id="logradouro"
-            name="logradouro"
-            value={values.logradouro || ''}
-            onChange={e => handleChange('logradouro', e.target.value)}
-            className="form-input"
-            required
-            readOnly
-          />
-        </div>
-
-        <div className="form-field">
-          <label htmlFor="bairro" className="form-label">
-            Bairro
-          </label>
-          <input
-            type="text"
-            id="bairro"
-            name="bairro"
-            value={values.bairro || ''}
-            onChange={e => handleChange('bairro', e.target.value)}
-            className="form-input"
-            required
-            readOnly
-          />
-        </div>
-
-        <div className="form-field">
-          <label htmlFor="cidade" className="form-label">
-            Cidade
-          </label>
-          <input
-            type="text"
-            id="cidade"
-            name="cidade"
-            value={values.cidade || ''}
-            onChange={e => handleChange('cidade', e.target.value)}
-            className="form-input"
-            required
-            readOnly
-          />
-        </div>
-
-        <div className="form-field">
-          <label htmlFor="uf" className="form-label">
-            UF
-          </label>
-          <input
-            type="text"
-            id="uf"
-            name="uf"
-            value={values.uf || ''}
-            onChange={e => handleChange('uf', e.target.value)}
-            className="form-input"
-            required
-            readOnly
-          />
-        </div>
-
-        <div className="flex justify-between mt-8">
-          <button type="button" onClick={prevStep} className="form-button form-button-secondary">
-            Voltar
-          </button>
-          <button type="submit" className="form-button form-button-primary">
-            Iniciar
-          </button>
-        </div>
-      </form>
-
-      {/* <div className="mt-8 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-700">
-        <p className="font-medium">Nota:</p>
-        <p className="text-sm">O preenchimento automático do endereço é baseado no CEP fornecido. Se necessário, você poderá ajustar os detalhes do endereço na próxima etapa.</p>
-      </div> */}
-    </div>
+      )}
+    </form>
   );
 };
 

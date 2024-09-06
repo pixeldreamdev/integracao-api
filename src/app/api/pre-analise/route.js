@@ -1,40 +1,36 @@
+import { MongoClient } from 'mongodb';
 import { NextResponse } from 'next/server';
-import {
-  connectToDatabase,
-  buscarPropostaTemporaria,
-  salvarPropostaTemporaria,
-} from '../../lib/services/dbService';
 
-export async function POST(request) {
-  console.log('Requisição recebida na rota ../api/pre-analise');
+const uri = process.env.MONGODB_URI;
+const client = new MongoClient(uri);
+
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const cpf = searchParams.get('cpf');
+
+  if (!cpf) {
+    return NextResponse.json({ error: 'CPF é obrigatório' }, { status: 400 });
+  }
+
   try {
-    const { cpf } = await request.json();
-    console.log('CPF recebido:', cpf);
+    await client.connect();
+    const database = client.db('crefaz_temp');
+    const propostas = database.collection('propostas');
 
-    const { db } = await connectToDatabase();
-    console.log('Conexão com o banco de dados estabelecida');
+    const existingProposta = await propostas.findOne({ cpf });
 
-    const propostaTemp = await buscarPropostaTemporaria(cpf);
-    console.log('Resultado da busca por proposta temporária:', propostaTemp);
-
-    if (propostaTemp) {
-      console.log('Proposta existente encontrada');
+    if (existingProposta) {
       return NextResponse.json({
-        status: 'existente',
-        proposta: propostaTemp,
-        propostaId: propostaTemp._id.toString(),
+        exists: true,
+        propostaId: existingProposta.propostaId,
       });
     } else {
-      console.log('Criando nova proposta temporária');
-      const novaPropostaId = await salvarPropostaTemporaria({ cpf });
-      console.log('Nova proposta criada com ID:', novaPropostaId);
-      return NextResponse.json({ status: 'nova', propostaId: novaPropostaId.toString() });
+      return NextResponse.json({ exists: false });
     }
   } catch (error) {
-    console.error('Erro detalhado:', error);
-    return NextResponse.json(
-      { error: 'Erro ao realizar pré-análise', details: error.message },
-      { status: 500 }
-    );
+    console.error('Erro ao verificar proposta:', error);
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });
+  } finally {
+    await client.close();
   }
 }

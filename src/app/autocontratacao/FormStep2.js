@@ -7,7 +7,6 @@ const FormStep2 = ({ nextStep, prevStep, handleChange, values }) => {
   const [ocupacoes, setOcupacoes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchOcupacoes = async () => {
@@ -33,21 +32,9 @@ const FormStep2 = ({ nextStep, prevStep, handleChange, values }) => {
     fetchOcupacoes();
   }, []);
 
-  const handleSubmit = async e => {
+  const handleSubmit = e => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await cadastrarProposta(propostaData);
-      handleChange('propostaId', response.data.propostaId);
-      nextStep();
-    } catch (error) {
-      console.error('Erro ao cadastrar proposta:', error);
-      setError('Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.');
-    } finally {
-      setIsLoading(false);
-    }
+    nextStep();
   };
 
   if (loading) return <div>Carregando...</div>;
@@ -158,16 +145,11 @@ const FormStep2 = ({ nextStep, prevStep, handleChange, values }) => {
       </div>
 
       <div className="flex justify-between">
-        <button
-          type="button"
-          onClick={prevStep}
-          className="form-button form-button-secondary"
-          disabled={isLoading}
-        >
+        <button type="button" onClick={prevStep} className="form-button form-button-secondary">
           Voltar
         </button>
-        <button type="submit" className="form-button form-button-primary" disabled={isLoading}>
-          {isLoading ? 'Processando...' : 'Continuar'}
+        <button type="submit" className="form-button form-button-primary">
+          Continuar
         </button>
       </div>
     </form>
