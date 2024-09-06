@@ -59,21 +59,30 @@ api.interceptors.response.use(
 
 export const makeApiCall = async (method, endpoint, data = null) => {
   console.log(`Iniciando chamada API: ${method} ${endpoint}`);
+  if (!authToken) {
+    await authenticate();
+  }
   try {
     const config = {
       method,
-      url: endpoint,
+      url: `${API_URL}${endpoint}`,
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
       },
-      data,
+      ...(method.toLowerCase() === 'get' ? { params: data } : { data }),
     };
     console.log('Configuração da chamada API:', config);
-    const response = await api(config);
+    const response = await axios(config);
     console.log(`Resposta da API (${method} ${endpoint}):`, response.data);
     return response.data;
   } catch (error) {
     console.error(`Erro detalhado na chamada API (${method} ${endpoint}):`, error);
+    if (error.response && error.response.status === 401) {
+      console.log('Token expirado, tentando reautenticar...');
+      await authenticate();
+      return makeApiCall(method, endpoint, data);
+    }
     throw error;
   }
 };

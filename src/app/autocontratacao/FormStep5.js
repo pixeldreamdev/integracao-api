@@ -1,75 +1,198 @@
-'use client';
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { makeApiCall } from '../api/auth/crefazApi';
 
 const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
+  const [vencimento, setVencimento] = useState(null);
+  const [valorLimite, setValorLimite] = useState(null);
+  const [valorLimiteParcela, setValorLimiteParcela] = useState(null);
+  const [simulacoes, setSimulacoes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    console.log('Valores recebidos:', values);
+    calcularVencimento();
+  }, []);
+
+  const calcularVencimento = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      console.log('Iniciando cálculo de vencimento...');
+      const dadosVencimento = {
+        propostaId: values.propostaId,
+        produtoId: values.produtoId,
+        convenioId: values.convenioId,
+        tabelaJurosId: parseInt(values.tabelaJurosId),
+        rota: null,
+        leitura: null,
+        vencimento: null,
+      };
+      console.log('Dados enviados para cálculo de vencimento:', dadosVencimento);
+      const response = await makeApiCall('POST', '/Proposta/calculo-vencimento', dadosVencimento);
+      console.log('Resposta do cálculo de vencimento:', response);
+      if (response.success) {
+        setVencimento(response.data.vencimento);
+        consultarValorLimite(response.data.vencimento);
+      } else {
+        setError('Falha ao calcular vencimento: ' + (response.message || 'Erro desconhecido'));
+      }
+    } catch (err) {
+      console.error('Erro ao calcular vencimento:', err);
+      setError('Erro ao calcular vencimento: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const consultarValorLimite = async vencimentoCalculado => {
+    setLoading(true);
+    setError(null);
+    try {
+      console.log('Iniciando consulta de valor limite...');
+      const dadosConsulta = {
+        produtoId: parseInt(values.produtoId),
+        convenioId: parseInt(values.convenioId),
+        tabelaJurosId: parseInt(values.tabelaJurosId),
+        vencimento: vencimentoCalculado,
+        renda: parseFloat(values.rendaEstimada),
+        recalculo: null,
+        valorDebitoConcorrente: 0,
+        diaRecebimento: 0,
+      };
+      console.log('Dados enviados para consulta de valor limite:', dadosConsulta);
+      const response = await makeApiCall(
+        'POST',
+        `/Proposta/consulta-valor-limite/${values.propostaId}`,
+        dadosConsulta
+      );
+      console.log('Resposta da consulta de valor limite:', response);
+      if (response.success) {
+        setValorLimite(response.data.valorLimiteSolicitado);
+        setValorLimiteParcela(response.data.valorLimiteParcela);
+      } else {
+        setError('Falha ao consultar valor limite: ' + (response.message || 'Erro desconhecido'));
+      }
+    } catch (err) {
+      console.error('Erro ao consultar valor limite:', err);
+      setError('Erro ao consultar valor limite: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const simularOferta = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      console.log('Iniciando simulação de oferta...');
+      const dadosSimulacao = {
+        produtoId: parseInt(values.produtoId),
+        convenioId: parseInt(values.convenioId),
+        tabelaJurosId: parseInt(values.tabelaJurosId),
+        valor: parseFloat(values.valorSolicitado),
+        tipoCalculo: 0,
+        vencimento: vencimento,
+        renda: parseFloat(values.rendaEstimada),
+        recalculo: null,
+        valorDebitoConcorrente: 0,
+        diaRecebimento: 0,
+        contrato: null,
+      };
+      console.log('Dados enviados para simulação de oferta:', dadosSimulacao);
+      const response = await makeApiCall(
+        'POST',
+        `/Proposta/simulacao-valor/${values.propostaId}`,
+        dadosSimulacao
+      );
+      console.log('Resposta da simulação de oferta:', response);
+      if (response.success) {
+        setSimulacoes(response.data.prazoValor);
+      } else {
+        setError('Falha ao simular oferta: ' + (response.message || 'Erro desconhecido'));
+      }
+    } catch (err) {
+      console.error('Erro ao simular oferta:', err);
+      setError('Erro ao simular oferta: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = e => {
     e.preventDefault();
-    nextStep();
+    if (validateForm()) {
+      simularOferta();
+    }
   };
+
+  const validateForm = () => {
+    if (!values.rendaEstimada || !values.valorSolicitado) {
+      setError('Por favor, preencha todos os campos.');
+      return false;
+    }
+    if (valorLimite && parseFloat(values.valorSolicitado) > valorLimite) {
+      setError(`O valor solicitado não pode ser maior que R$ ${valorLimite.toFixed(2)}`);
+      return false;
+    }
+    return true;
+  };
+
+  if (loading) return <div>Carregando...</div>;
 
   return (
     <div className="form-section fade-in">
-      <h2 className="form-section-title">Pré-Análise (Etapa 5)</h2>
-      <p className="text-text-light mb-6">
-        Nesta etapa, precisamos que você informe sua renda estimada para prosseguirmos com a
-        análise.
-      </p>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-gray-50 p-4 rounded-lg mb-6">
-          <div className="mb-2">
-            <label className="block text-sm font-medium text-gray-700">Cliente</label>
-            <p className="text-lg font-semibold text-primary">{values.nome}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">CPF</label>
-            <p className="text-lg text-primary">{values.cpf}</p>
-          </div>
+      <h2 className="form-section-title">Simulação de Empréstimo</h2>
+      {error && <div className="error-message">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <div className="form-field">
+          <label htmlFor="rendaEstimada">Renda Estimada</label>
+          <input
+            type="number"
+            id="rendaEstimada"
+            value={values.rendaEstimada || ''}
+            onChange={e => handleChange('rendaEstimada', e.target.value)}
+            required
+            step="0.01"
+          />
         </div>
 
         <div className="form-field">
-          <label htmlFor="rendaEstimada" className="form-label">
-            Renda estimada
-          </label>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-              R$
-            </span>
-            <input
-              type="number"
-              id="rendaEstimada"
-              name="rendaEstimada"
-              value={values.rendaEstimada || ''}
-              onChange={e => handleChange('rendaEstimada', e.target.value)}
-              className="form-input pl-8"
-              placeholder="0,00"
-              required
-              min="0"
-              step="0.01"
-            />
-          </div>
-          <p className="form-helper-text">
-            A renda estimada pode ser alterada posteriormente, se necessário.
-          </p>
+          <label htmlFor="valorSolicitado">Valor Solicitado</label>
+          <input
+            type="number"
+            id="valorSolicitado"
+            value={values.valorSolicitado || ''}
+            onChange={e => handleChange('valorSolicitado', e.target.value)}
+            max={valorLimite}
+            required
+            step="0.01"
+          />
+          {valorLimite && <p>Valor máximo: R$ {valorLimite.toFixed(2)}</p>}
+          {valorLimiteParcela && <p>Valor máximo da parcela: R$ {valorLimiteParcela.toFixed(2)}</p>}
         </div>
 
-        <div className="flex justify-between mt-8">
-          <button type="button" onClick={prevStep} className="form-button form-button-secondary">
-            Voltar
-          </button>
-          <button type="submit" className="form-button form-button-primary">
-            Continuar
-          </button>
-        </div>
+        <button type="submit">Simular</button>
       </form>
 
-      <div className="mt-8 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-700">
-        <p className="font-medium">Dica:</p>
-        <p className="text-sm">
-          Forneça uma estimativa precisa da sua renda mensal. Isso nos ajudará a oferecer as
-          melhores opções de empréstimo para você.
-        </p>
+      {simulacoes.length > 0 && (
+        <div className="simulacoes">
+          <h3>Opções de Parcelamento</h3>
+          <ul>
+            {simulacoes.map((simulacao, index) => (
+              <li key={index}>
+                {simulacao.prazo} parcelas de R$ {simulacao.valor.toFixed(2)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="nav-buttons">
+        <button onClick={prevStep}>Voltar</button>
+        <button onClick={nextStep} disabled={simulacoes.length === 0}>
+          Continuar
+        </button>
       </div>
     </div>
   );

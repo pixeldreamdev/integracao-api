@@ -148,7 +148,7 @@ const FormStep6SubStep1 = ({ onNextStep, values, handleChange }) => {
         label="Nome Completo"
         name="nomeCompleto"
         type="text"
-        value={values.nomeCompleto}
+        value={values.nome}
         onChange={handleChange}
         disabled={true}
       />

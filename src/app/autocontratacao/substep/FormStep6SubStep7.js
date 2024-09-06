@@ -1,7 +1,6 @@
-'use client';
-
 import React, { useState } from 'react';
-import submitForm from '../../api/auth/crefazApi';
+import { makeApiCall } from '../../api/auth/crefazApi';
+import { updateProposta } from '../../lib/services/dbService';
 
 const FileUploadField = ({ label, name, acceptedFileTypes, value, onChange, error }) => {
   return (
@@ -69,9 +68,18 @@ const FormStep6SubStep7 = ({ onPrevStep, values, handleChange, onFormSubmit }) =
     if (Object.keys(newErrors).length === 0) {
       setIsSubmitting(true);
       try {
-        const response = await submitForm(values);
-        onFormSubmit(response); // Passa a resposta da API para o componente pai
+        // Atualizar proposta na API Crefaz
+        const responseApi = await makeApiCall('PUT', `/Proposta/${values.propostaId}`, values);
+
+        // Atualizar proposta no MongoDB local
+        await updateProposta(values);
+
+        // Upload dos arquivos (você precisará implementar esta funcionalidade)
+        // await uploadFiles(values.docIdentificacao, values.faturaEnergia);
+
+        onFormSubmit(responseApi);
       } catch (error) {
+        console.error('Erro ao enviar formulário:', error);
         setErrors({
           submit: 'Erro ao enviar o formulário. Por favor, tente novamente.',
         });

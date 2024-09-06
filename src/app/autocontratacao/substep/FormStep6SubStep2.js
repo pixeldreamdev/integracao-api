@@ -38,7 +38,7 @@ const FormStep6SubStep2 = ({ onPrevStep, onNextStep, values, handleChange }) => 
             type="tel"
             id="celular"
             name="celular"
-            value={values.celular || ''}
+            value={values.telefone || ''}
             onChange={e => handleChange('celular', e.target.value)}
             className="form-input"
             placeholder="(00) 00000-0000"
@@ -54,7 +54,7 @@ const FormStep6SubStep2 = ({ onPrevStep, onNextStep, values, handleChange }) => 
             type="tel"
             id="telefone"
             name="telefone"
-            value={values.telefone || ''}
+            value={values.celular || ''}
             onChange={e => handleChange('telefone', e.target.value)}
             className="form-input"
             placeholder="(00) 0000-0000"

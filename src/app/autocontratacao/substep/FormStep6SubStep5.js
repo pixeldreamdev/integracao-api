@@ -63,7 +63,7 @@ const FormStep6SubStep5 = ({ onPrevStep, onNextStep, values, handleChange }) => 
 
   useEffect(() => {
     handleChange('referencias', referencias);
-  }, [referencias, handleChange]);
+  }, [referencias]);
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -88,7 +88,7 @@ const FormStep6SubStep5 = ({ onPrevStep, onNextStep, values, handleChange }) => 
     <div className="form-section fade-in">
       <h2 className="form-section-title">Dados de Referências Pessoais</h2>
       <p className="text-text-light mb-6">
-        A Crefaz não entrará em contato com nenhuma das referências adicionadas.
+        O Crefaz não entrará em contato com nenhuma das referências adicionadas.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -100,6 +100,7 @@ const FormStep6SubStep5 = ({ onPrevStep, onNextStep, values, handleChange }) => 
             updateReference={updateReference}
           />
         ))}
+
         {!showExtraReference && (
           <button
             type="button"
@@ -109,6 +110,7 @@ const FormStep6SubStep5 = ({ onPrevStep, onNextStep, values, handleChange }) => 
             + Adicionar Referência
           </button>
         )}
+
         <div className="flex justify-between mt-8">
           <button type="button" onClick={onPrevStep} className="form-button form-button-secondary">
             Voltar

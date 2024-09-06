@@ -1,29 +1,81 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { makeApiCall } from '../api/auth/crefazApi';
 
 const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [produtosOfertas, setProdutosOfertas] = useState([]);
   const [empresasConveniadas, setEmpresasConveniadas] = useState([]);
 
   useEffect(() => {
-    // Simulação de chamada à API para buscar as empresas conveniadas
-    const mockEmpresas = [
-      { id: 1, nome: 'Empresa A' },
-      { id: 2, nome: 'Empresa B' },
-      { id: 3, nome: 'Empresa C' },
-    ];
-    setEmpresasConveniadas(mockEmpresas);
-    // Aqui você faria uma chamada real à API:
-    // const fetchEmpresas = async () => {
-    //   const response = await fetch('/api/empresas-conveniadas');
-    //   const data = await response.json();
-    //   setEmpresasConveniadas(data);
-    // };
-    // fetchEmpresas();
-  }, []);
+    const fetchOfertas = async () => {
+      if (!values.propostaId) {
+        setError('ID da proposta não encontrado');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await makeApiCall('get', `/Proposta/oferta-produto/${values.propostaId}`);
+        if (response.success && response.data.produtos) {
+          setProdutosOfertas(response.data.produtos);
+          // Assumindo que o primeiro produto tem as empresas conveniadas
+          if (response.data.produtos[0] && response.data.produtos[0].convenio) {
+            setEmpresasConveniadas(response.data.produtos[0].convenio);
+          }
+        } else {
+          throw new Error('Falha ao buscar ofertas de produtos');
+        }
+      } catch (err) {
+        console.error('Erro ao buscar ofertas:', err);
+        setError('Não foi possível carregar as ofertas. Por favor, tente novamente.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOfertas();
+  }, [values.propostaId]);
 
   const handleSubmit = e => {
     e.preventDefault();
+
+    if (!values.empresaConveniada) {
+      setError('Por favor, selecione uma empresa conveniada.');
+      return;
+    }
+
+    const selectedConvenio = empresasConveniadas.find(
+      conv => conv.id.toString() === values.empresaConveniada
+    );
+
+    if (!selectedConvenio) {
+      setError('Empresa conveniada selecionada não encontrada.');
+      return;
+    }
+
+    if (produtosOfertas.length === 0) {
+      setError('Nenhum produto ofertado encontrado.');
+      return;
+    }
+
+    handleChange('produtoId', produtosOfertas[0].id); // Assumindo que há apenas um produto
+    handleChange('convenioId', selectedConvenio.id);
+    handleChange('rota', values.numeroInstalacao);
+    handleChange('leitura', values.dataLeitura);
+
+    if (!values.numeroInstalacao) {
+      setError('Por favor, insira o número da instalação.');
+      return;
+    }
+
+    if (!values.dataLeitura) {
+      setError('Por favor, selecione a data de leitura.');
+      return;
+    }
+
     nextStep();
   };
 
@@ -62,7 +114,7 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
             <option value="">Selecione a empresa</option>
             {empresasConveniadas.map(empresa => (
               <option key={empresa.id} value={empresa.id}>
-                {empresa.nome}
+                {empresa.nome || `Convênio ${empresa.id}`}
               </option>
             ))}
           </select>
@@ -116,6 +168,12 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
           da instalação para garantir a precisão das ofertas de produtos.
         </p>
       </div>
+      {error && (
+        <div className="mt-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+          <p className="font-bold">Erro</p>
+          <p>{error}</p>
+        </div>
+      )}
     </div>
   );
 };

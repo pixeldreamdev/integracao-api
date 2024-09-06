@@ -1,5 +1,24 @@
 import axios from 'axios';
 
+export const updateProposta = async propostaData => {
+  try {
+    console.log('Tentando atualizar proposta:', propostaData);
+    const response = await axios.put('../../api/updateproposta', propostaData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log('Resposta do servidor:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      'Erro detalhado ao atualizar proposta:',
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+};
+
 export const saveProposta = async propostaData => {
   try {
     console.log('Tentando salvar proposta:', propostaData);
