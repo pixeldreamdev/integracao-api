@@ -2,7 +2,7 @@ import './globals.css';
 import Header from './components/Headers';
 
 export const metadata = {
-  title: 'Empréstimo Crefaz',
+  title: 'LWG CRED',
   description: 'Solicite seu empréstimo de forma rápida e segura',
 };
 

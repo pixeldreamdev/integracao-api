@@ -5,7 +5,11 @@ const HeroSection = () => {
   return (
     <section className="text-center py-16">
       <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary">
-        A melhor oferta de crédito está aqui, rápido e sem burocracia.
+        A melhor oferta de crédito está aqui
+        <p>Rápido e sem burocracia.</p>
+        <p className="text-4xl md:text-2xl font-bold mb-4 text-secondary">
+          Realizar seus sonhos nunca foi tão simples
+        </p>
       </h1>
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto mt-8">
         <h2 className="text-3xl font-semibold mb-4 text-secondary">Dinheiro Rápido</h2>
