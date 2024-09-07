@@ -8,6 +8,6 @@ module.exports = {
     'prettier/prettier': 'error',
     'react/no-unescaped-entities': 'off', // Desativa a regra que estava causando o erro anterior
     singleQuote: [2, 'always'],
-    parser: 'flow',
+    parser: 'babel-eslint',
   },
 };
