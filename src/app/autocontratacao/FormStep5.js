@@ -12,7 +12,7 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
   useEffect(() => {
     console.log('Valores recebidos:', values);
     calcularVencimento();
-  }, []);
+  }, [values]);
 
   const calcularVencimento = async () => {
     setLoading(true);
@@ -24,18 +24,19 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
         produtoId: values.produtoId,
         convenioId: values.convenioId,
         tabelaJurosId: parseInt(values.tabelaJurosId),
-        rota: null,
-        leitura: null,
+        rota: values.numeroInstalacao,
+        leitura: values.dataLeitura,
         vencimento: null,
       };
       console.log('Dados enviados para cálculo de vencimento:', dadosVencimento);
       const response = await makeApiCall('POST', '/Proposta/calculo-vencimento', dadosVencimento);
       console.log('Resposta do cálculo de vencimento:', response);
-      if (response.success) {
-        setVencimento(response.data.vencimento);
-        consultarValorLimite(response.data.vencimento);
+
+      if (response.success && response.data.length > 0 && response.data[0].vencimento) {
+        setVencimento(response.data[0].vencimento);
+        consultarValorLimite(response.data[0].vencimento);
       } else {
-        setError('Falha ao calcular vencimento: ' + (response.message || 'Erro desconhecido'));
+        throw new Error('A resposta não contém o campo "vencimento".');
       }
     } catch (err) {
       console.error('Erro ao calcular vencimento:', err);
@@ -145,18 +146,6 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
       <h2 className="form-section-title">Simulação de Empréstimo</h2>
       {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit}>
-        <div className="form-field">
-          <label htmlFor="rendaEstimada">Renda Estimada</label>
-          <input
-            type="number"
-            id="rendaEstimada"
-            value={values.rendaEstimada || ''}
-            onChange={e => handleChange('rendaEstimada', e.target.value)}
-            required
-            step="0.01"
-          />
-        </div>
-
         <div className="form-field">
           <label htmlFor="valorSolicitado">Valor Solicitado</label>
           <input

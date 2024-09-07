@@ -47,6 +47,11 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
       return;
     }
 
+    if (!values.rendaEstimada) {
+      setError('Por favor, insira a renda estimada.');
+      return;
+    }
+
     const selectedConvenio = empresasConveniadas.find(
       conv => conv.id.toString() === values.empresaConveniada
     );
@@ -61,8 +66,10 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
       return;
     }
 
-    handleChange('produtoId', produtosOfertas[0].id); // Assumindo que há apenas um produto
+    // Armazene os dados no state para serem passados para o próximo passo
+    handleChange('produtoId', produtosOfertas[0].id);
     handleChange('convenioId', selectedConvenio.id);
+    handleChange('tabelaJurosId', selectedConvenio.tabelaJuros[0]?.id || '');
     handleChange('rota', values.numeroInstalacao);
     handleChange('leitura', values.dataLeitura);
 
@@ -148,6 +155,23 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
             onChange={e => handleChange('dataLeitura', e.target.value)}
             className="form-input"
             required
+          />
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="rendaEstimada" className="form-label">
+            Renda
+          </label>
+          <input
+            type="number"
+            id="rendaEstimada"
+            name="rendaEstimada"
+            value={values.rendaEstimada || ''}
+            onChange={e => handleChange('rendaEstimada', e.target.value)}
+            className="form-input"
+            required
+            placeholder="Digite a renda estimada"
+            step="0.01"
           />
         </div>
 

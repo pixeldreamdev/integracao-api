@@ -22,7 +22,7 @@ const Header = () => {
           onClick={e => handleNavigation(e, '/')}
           className="text-2xl font-bold text-primary"
         >
-          Crefaz
+          <strong> Lwg Cred</strong>
         </a>
         <nav>
           <ul className="flex space-x-6">
