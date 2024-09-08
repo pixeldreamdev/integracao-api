@@ -1,13 +1,21 @@
 module.exports = {
-  parser: 'babel-eslint', // Mova o parser para fora das regras
+  parser: '@babel/eslint-parser',
   extends: [
     'next/core-web-vitals',
-    'plugin:prettier/recommended', // Adiciona o Prettier à configuração do ESLint
+    'plugin:react-hooks/recommended',
+    'plugin:prettier/recommended',
   ],
-  plugins: ['prettier'],
+  plugins: ['prettier', 'react-hooks'],
   rules: {
-    'prettier/prettier': 'error',
-    'react/no-unescaped-entities': 'off', // Desativa a regra que estava causando o erro anterior
-    singleQuote: [2, 'always'],
+    'prettier/prettier': ['error', {}, { usePrettierrc: true }],
+    'react/no-unescaped-entities': 'off',
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn',
+  },
+  parserOptions: {
+    requireConfigFile: false,
+    babelOptions: {
+      presets: ['next/babel'],
+    },
   },
 };

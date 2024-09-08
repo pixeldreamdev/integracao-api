@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { makeApiCall } from '../api/auth/crefazApi';
 import { saveProposta } from '../lib/services/dbService';
+import { getNotificationUrl } from '../utils/urlHelpers';
 
 const FormStep3 = ({ nextStep, prevStep, handleChange, values }) => {
   const [loading, setLoading] = useState(false);
@@ -63,7 +64,7 @@ const FormStep3 = ({ nextStep, prevStep, handleChange, values }) => {
         cep: values.cep.replace(/\D/g, ''),
         bairro: values.bairro,
         logradouro: values.logradouro,
-        urlNotificacaoParceiro: 'https://unkempt-yacht-08.webhook.cool',
+        urlNotificacaoParceiro: getNotificationUrl(),
       };
 
       console.log('Dados da proposta a serem enviados:', propostaData);

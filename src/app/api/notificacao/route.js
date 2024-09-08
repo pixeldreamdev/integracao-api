@@ -1,54 +1,24 @@
-// pages/api/notificacao.js
+import { NextResponse } from 'next/server';
 
-import rateLimit from 'express-rate-limit';
-import Joi from 'joi';
+export async function POST(request) {
+  try {
+    // Obtém o corpo da requisição
+    const body = await request.json();
 
-// Middleware de limitação de taxa
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // Limita a 100 requisições por IP a cada 15 minutos
-  message: 'Muitas requisições feitas a partir deste IP, tente novamente mais tarde',
-});
+    // Log dos dados recebidos
+    console.log('Notificação de proposta recebida:', body);
 
-// Esquema de validação usando Joi
-const schema = Joi.object({
-  loanId: Joi.string().required(),
-  status: Joi.string().valid('approved', 'rejected', 'pending').required(),
-  amount: Joi.number().positive().optional(),
-  // Adicione mais campos conforme necessário
-});
+    // Aqui você pode adicionar lógica adicional se necessário
+    // Por exemplo, você pode querer registrar esta notificação em um log separado
+    // ou realizar alguma ação específica baseada na notificação
 
-export default async function handler(req, res) {
-  // Aplica o rate limiter
-  await new Promise((resolve, reject) => {
-    limiter(req, res, result => (result instanceof Error ? reject(result) : resolve(result)));
-  });
-
-  // Verifica o método da requisição
-  if (req.method === 'POST') {
-    // Obtém o token da requisição
-    const token = req.headers['authorization'];
-
-    // Verifica se o token é válido
-    if (token !== `Bearer ${process.env.SECRET_TOKEN}`) {
-      return res.status(401).json({ message: 'Token inválido ou ausente' });
-    }
-
-    // Valida o corpo da requisição
-    const { error, value } = schema.validate(req.body);
-
-    if (error) {
-      return res.status(400).json({ message: 'Dados inválidos', details: error.details });
-    }
-
-    // Processa a notificação válida
-    console.log('Notificação recebida:', value);
-
-    // Aqui você pode processar os dados recebidos, salvar no banco de dados, etc.
-
-    return res.status(200).json({ message: 'Notificação recebida com sucesso' });
-  } else {
-    // Responda com método não permitido para outros tipos de requisições
-    return res.status(405).json({ message: 'Método não permitido' });
+    // Responde com sucesso
+    return NextResponse.json(
+      { message: 'Notificação recebida e registrada com sucesso' },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Erro ao processar notificação:', error);
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });
   }
 }

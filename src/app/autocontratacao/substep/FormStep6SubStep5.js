@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const ReferenceFields = ({ index, reference, updateReference }) => (
   <div className="space-y-4 mb-6 p-4 bg-gray-50 rounded-lg">
@@ -61,26 +61,28 @@ const FormStep6SubStep5 = ({ onPrevStep, onNextStep, values, handleChange }) => 
   );
   const [showExtraReference, setShowExtraReference] = useState(false);
 
+  const updateReference = useCallback((index, field, value) => {
+    setReferencias(prevReferencias =>
+      prevReferencias.map((ref, i) => (i === index ? { ...ref, [field]: value } : ref))
+    );
+  }, []);
+
   useEffect(() => {
     handleChange('referencias', referencias);
-  }, [referencias]);
+  }, [referencias, handleChange]);
 
   const handleSubmit = e => {
     e.preventDefault();
     onNextStep();
   };
 
-  const updateReference = (index, field, value) => {
-    const updatedReferencias = referencias.map((ref, i) =>
-      i === index ? { ...ref, [field]: value } : ref
-    );
-    setReferencias(updatedReferencias);
-  };
-
   const addExtraReference = () => {
     if (!showExtraReference) {
       setShowExtraReference(true);
-      setReferencias([...referencias, { nome: '', telefone: '', tipoReferencia: '' }]);
+      setReferencias(prevReferencias => [
+        ...prevReferencias,
+        { nome: '', telefone: '', tipoReferencia: '' },
+      ]);
     }
   };
 

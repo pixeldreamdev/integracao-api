@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+'use client';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { makeApiCall } from '../api/auth/crefazApi';
 
 const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
@@ -9,12 +11,52 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    console.log('Valores recebidos:', values);
-    calcularVencimento();
-  }, [values]);
+  const consultarValorLimite = useCallback(
+    async vencimentoCalculado => {
+      setLoading(true);
+      setError(null);
+      try {
+        console.log('Iniciando consulta de valor limite...');
+        const dadosConsulta = {
+          produtoId: parseInt(values.produtoId),
+          convenioId: parseInt(values.convenioId),
+          tabelaJurosId: parseInt(values.tabelaJurosId),
+          vencimento: vencimentoCalculado,
+          renda: parseFloat(values.rendaEstimada),
+          recalculo: null,
+          valorDebitoConcorrente: 0,
+          diaRecebimento: 0,
+        };
+        console.log('Dados enviados para consulta de valor limite:', dadosConsulta);
+        const response = await makeApiCall(
+          'POST',
+          `/Proposta/consulta-valor-limite/${values.propostaId}`,
+          dadosConsulta
+        );
+        console.log('Resposta da consulta de valor limite:', response);
+        if (response.success) {
+          setValorLimite(response.data.valorLimiteSolicitado);
+          setValorLimiteParcela(response.data.valorLimiteParcela);
+        } else {
+          setError('Falha ao consultar valor limite: ' + (response.message || 'Erro desconhecido'));
+        }
+      } catch (err) {
+        console.error('Erro ao consultar valor limite:', err);
+        setError('Erro ao consultar valor limite: ' + (err.response?.data?.message || err.message));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      values.produtoId,
+      values.convenioId,
+      values.tabelaJurosId,
+      values.propostaId,
+      values.rendaEstimada,
+    ]
+  );
 
-  const calcularVencimento = async () => {
+  const calcularVencimento = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -44,43 +86,22 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    values.propostaId,
+    values.produtoId,
+    values.convenioId,
+    values.tabelaJurosId,
+    values.numeroInstalacao,
+    values.dataLeitura,
+    consultarValorLimite,
+  ]);
 
-  const consultarValorLimite = async vencimentoCalculado => {
-    setLoading(true);
-    setError(null);
-    try {
-      console.log('Iniciando consulta de valor limite...');
-      const dadosConsulta = {
-        produtoId: parseInt(values.produtoId),
-        convenioId: parseInt(values.convenioId),
-        tabelaJurosId: parseInt(values.tabelaJurosId),
-        vencimento: vencimentoCalculado,
-        renda: parseFloat(values.rendaEstimada),
-        recalculo: null,
-        valorDebitoConcorrente: 0,
-        diaRecebimento: 0,
-      };
-      console.log('Dados enviados para consulta de valor limite:', dadosConsulta);
-      const response = await makeApiCall(
-        'POST',
-        `/Proposta/consulta-valor-limite/${values.propostaId}`,
-        dadosConsulta
-      );
-      console.log('Resposta da consulta de valor limite:', response);
-      if (response.success) {
-        setValorLimite(response.data.valorLimiteSolicitado);
-        setValorLimiteParcela(response.data.valorLimiteParcela);
-      } else {
-        setError('Falha ao consultar valor limite: ' + (response.message || 'Erro desconhecido'));
-      }
-    } catch (err) {
-      console.error('Erro ao consultar valor limite:', err);
-      setError('Erro ao consultar valor limite: ' + (err.response?.data?.message || err.message));
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    console.log('Valores recebidos:', values);
+    if (values.propostaId && values.produtoId && values.convenioId && values.tabelaJurosId) {
+      calcularVencimento();
     }
-  };
+  }, [calcularVencimento, values]);
 
   const simularOferta = async () => {
     setLoading(true);
