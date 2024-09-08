@@ -1,5 +1,6 @@
 import './globals.css';
 import Header from './components/Headers';
+import { SpeedInsights } from '@vercel/speed-insights/*';
 
 export const metadata = {
   title: 'LWG CRED',
@@ -15,6 +16,7 @@ export default function RootLayout({ children }) {
         <footer className="bg-gray-100 py-4 text-center">
           <p>&copy; 2024 Lwg Cred. Todos os direitos reservados.</p>
         </footer>
+        <SpeedInsights />
       </body>
     </html>
   );
