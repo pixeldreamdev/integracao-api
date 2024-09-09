@@ -27,11 +27,6 @@
     "NEXT_PUBLIC_CREFAZ_API_KEY": "@next_public_crefaz_api_key",
     "MONGODB_URI": "@mongodb_uri"
   },
-  "functions": {
-    "app/api/**/*.js": {
-      "maxDuration": 60
-    }
-  },
   "headers": [
     {
       "source": "app/api/(.*)",
