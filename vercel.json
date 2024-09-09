@@ -23,6 +23,8 @@
     "NEXT_PUBLIC_CREFAZ_LOGIN": "@next_public_crefaz_login",
     "NEXT_PUBLIC_CREFAZ_SENHA": "@next_public_crefaz_senha",
     "NEXT_PUBLIC_CREFAZ_API_KEY": "@next_public_crefaz_api_key",
-    "MONGODB_URI": "@mongodb_uri"
+    "MONGODB_URI": "@mongodb_uri",
+    "NEXT_PUBLIC_URL": "@nex_public_url",
+    "SECRET_TOKEN": "@secret_token"
   }
 }
