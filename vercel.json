@@ -3,7 +3,7 @@
     "src/app/**/*.js": {
       "maxDuration": 10
     },
-    "src/app/api/**/*.js": {
+    "src/app/api/pre-analise/*.js": {
       "maxDuration": 10
     },
     "src/app/autocontratacao/**/*.js": {
