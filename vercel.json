@@ -1,13 +1,22 @@
 {
   "functions": {
-    "src/app/api/*.js": {
-      "src/app/autocontratacao*.js": {
-        "src/app/utils*.js": {
-          "src/app/lib*.js": {
-            "maxDuration": 10
-          }
-        }
-      }
+    "api/*.js": {
+      "maxDuration": 10
+    },
+    "src/app/*.js": {
+      "maxDuration": 10
+    },
+    "server/functions/*.js": {
+      "maxDuration": 10
+    },
+    "api/**/*.js": {
+      "maxDuration": 10
+    },
+    "src/app/**/*.js": {
+      "maxDuration": 10
+    },
+    "server/functions/**/*.js": {
+      "maxDuration": 10
     }
   }
 }
