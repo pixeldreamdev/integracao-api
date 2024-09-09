@@ -1,9 +1,10 @@
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {
-//     reactStrictMode: true,
-//     eslint: {
-//       ignoreDuringBuilds: true,
-//     },
-//   }
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  experimental: {
+    appDir: true,
+  },
+  // Adicione outras configurações conforme necessário
+};
 
-//   module.exports = nextConfig
+module.exports = nextConfig;
