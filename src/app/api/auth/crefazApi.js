@@ -8,9 +8,9 @@ const authenticate = async () => {
   console.log('Iniciando processo de autenticação...');
   try {
     const response = await axios.post(`${API_URL}/Usuario/login`, {
-      login: process.env.NEXT_PUBLIC_CREFAZ_LOGIN,
-      senha: process.env.NEXT_PUBLIC_CREFAZ_SENHA,
-      apiKey: process.env.NEXT_PUBLIC_CREFAZ_API_KEY,
+      login: process.env.CREFAZ_LOGIN,
+      senha: process.env.CREFAZ_SENHA,
+      apiKey: process.env.CREFAZ_API_KEY,
     });
     console.log('Resposta de autenticação:', response.data);
     if (response.data.success) {
