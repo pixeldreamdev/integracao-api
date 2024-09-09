@@ -1,9 +1,11 @@
 import axios from 'axios';
 
+const Url = process.env.NEXT_PUBLIC_URL || ''; // Você pode definir isso como '' para caminhos relativos
+
 export const updateProposta = async propostaData => {
   try {
     console.log('Tentando atualizar proposta:', propostaData);
-    const response = await axios.put('../../api/updateproposta', propostaData, {
+    const response = await axios.put(`${Url}/api/updateproposta`, propostaData, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -22,7 +24,7 @@ export const updateProposta = async propostaData => {
 export const saveProposta = async propostaData => {
   try {
     console.log('Tentando salvar proposta:', propostaData);
-    const response = await axios.post('../../api/saveproposta', propostaData, {
+    const response = await axios.post(`${Url}/api/saveproposta`, propostaData, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -40,10 +42,13 @@ export const saveProposta = async propostaData => {
 
 export const checkExistingProposta = async cpf => {
   try {
-    const response = await axios.get('../../api/pre-analise', { params: { cpf } });
+    const response = await axios.get(`${Url}/api/pre-analise`, { params: { cpf } });
     return response.data;
   } catch (error) {
-    console.error('Erro ao verificar proposta existente:', error);
+    console.error(
+      'Erro ao verificar proposta existente:',
+      error.response ? error.response.data : error.message
+    );
     throw error;
   }
 };
