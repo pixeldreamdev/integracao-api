@@ -2,14 +2,21 @@
   "version": 2,
   "builds": [
     {
-      "src": "page.js",
-      "use": "@vercel/node"
+      "src": "package.json",
+      "use": "@vercel/next"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/page.js"
+      "dest": "/$1"
     }
-  ]
+  ],
+  "env": {
+    "NEXT_PUBLIC_API_URL": "@next_public_api_url",
+    "NEXT_PUBLIC_CREFAZ_LOGIN": "@next_public_crefaz_login",
+    "NEXT_PUBLIC_CREFAZ_SENHA": "@next_public_crefaz_senha",
+    "NEXT_PUBLIC_CREFAZ_API_KEY": "@next_public_crefaz_api_key",
+    "MONGODB_URI": "@mongodb_uri"
+  }
 }
