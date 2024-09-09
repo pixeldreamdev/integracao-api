@@ -1,25 +1,25 @@
 {
   "functions": {
     "src/app/**/*.js": {
-      "maxDuration": 10
+      "maxDuration": 60
     },
     "src/app/api/pre-analise/*.js": {
-      "maxDuration": 10
+      "maxDuration": 60
     },
     "src/app/autocontratacao/**/*.js": {
-      "maxDuration": 10
+      "maxDuration": 60
     },
     "src/app/components/**/*.js": {
-      "maxDuration": 10
+      "maxDuration": 60
     },
     "src/app/data/**/*.js": {
-      "maxDuration": 10
+      "maxDuration": 60
     },
     "src/app/lib/**/*.js": {
-      "maxDuration": 10
+      "maxDuration": 60
     },
     "src/app/utils/**/*.js": {
-      "maxDuration": 10
+      "maxDuration": 60
     }
   }
 }
