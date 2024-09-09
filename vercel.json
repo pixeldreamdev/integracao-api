@@ -1,21 +1,24 @@
 {
   "functions": {
-    "api/*.js": {
-      "maxDuration": 10
-    },
-    "src/app/*.js": {
-      "maxDuration": 10
-    },
-    "server/functions/*.js": {
-      "maxDuration": 10
-    },
-    "api/**/*.js": {
-      "maxDuration": 10
-    },
     "src/app/**/*.js": {
       "maxDuration": 10
     },
-    "server/functions/**/*.js": {
+    "src/app/api/**/*.js": {
+      "maxDuration": 10
+    },
+    "src/app/autocontratacao/**/*.js": {
+      "maxDuration": 10
+    },
+    "src/app/components/**/*.js": {
+      "maxDuration": 10
+    },
+    "src/app/data/**/*.js": {
+      "maxDuration": 10
+    },
+    "src/app/lib/**/*.js": {
+      "maxDuration": 10
+    },
+    "src/app/utils/**/*.js": {
       "maxDuration": 10
     }
   }
