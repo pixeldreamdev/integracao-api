@@ -8,6 +8,7 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
   const [error, setError] = useState('');
   const [produtosOfertas, setProdutosOfertas] = useState([]);
   const [empresasConveniadas, setEmpresasConveniadas] = useState([]);
+  const [diaRecebimento, setDiaRecebimento] = useState('5');
 
   useEffect(() => {
     const fetchOfertas = async () => {
@@ -21,7 +22,6 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
         const response = await makeApiCall('get', `/Proposta/oferta-produto/${values.propostaId}`);
         if (response.success && response.data.produtos) {
           setProdutosOfertas(response.data.produtos);
-          // Assumindo que o primeiro produto tem as empresas conveniadas
           if (response.data.produtos[0] && response.data.produtos[0].convenio) {
             setEmpresasConveniadas(response.data.produtos[0].convenio);
           }
@@ -47,11 +47,6 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
       return;
     }
 
-    if (!values.rendaEstimada) {
-      setError('Por favor, insira a renda estimada.');
-      return;
-    }
-
     const selectedConvenio = empresasConveniadas.find(
       conv => conv.id.toString() === values.empresaConveniada
     );
@@ -66,13 +61,6 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
       return;
     }
 
-    // Armazene os dados no state para serem passados para o próximo passo
-    handleChange('produtoId', produtosOfertas[0].id);
-    handleChange('convenioId', selectedConvenio.id);
-    handleChange('tabelaJurosId', selectedConvenio.tabelaJuros[0]?.id || '');
-    handleChange('rota', values.numeroInstalacao);
-    handleChange('leitura', values.dataLeitura);
-
     if (!values.numeroInstalacao) {
       setError('Por favor, insira o número da instalação.');
       return;
@@ -83,8 +71,35 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
       return;
     }
 
+    // Armazenar dados reais
+    handleChange('numeroInstalacaoReal', values.numeroInstalacao);
+    handleChange('dataLeituraReal', values.dataLeitura);
+    handleChange('diaRecebimento', diaRecebimento);
+
+    // Em homologação, definir valores nulos para rota e leitura
+    if (process.env.NEXT_PUBLIC_ENV === 'homologacao') {
+      handleChange('numeroInstalacao', null);
+      handleChange('dataLeitura', null);
+    }
+
+    // Armazenar outros dados necessários
+    handleChange('produtoId', produtosOfertas[0].id);
+    handleChange('convenioId', selectedConvenio.id);
+    handleChange('tabelaJurosId', selectedConvenio.tabelaJuros[0]?.id || '');
+
+    // Armazenar IDs dos dados do convênio
+    const convenioDados = selectedConvenio.convenioDados;
+    if (convenioDados && convenioDados.length >= 2) {
+      handleChange('convenioDadosId1', convenioDados[0].convenioDadosId);
+      handleChange('convenioDadosId2', convenioDados[1].convenioDadosId);
+    }
+
     nextStep();
   };
+
+  if (loading) {
+    return <div>Carregando ofertas de produtos...</div>;
+  }
 
   return (
     <div className="form-section fade-in">
@@ -157,22 +172,24 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
             required
           />
         </div>
-
         <div className="form-field">
-          <label htmlFor="rendaEstimada" className="form-label">
-            Renda
+          <label htmlFor="diaRecebimento" className="form-label">
+            Dia de Recebimento
           </label>
-          <input
-            type="number"
-            id="rendaEstimada"
-            name="rendaEstimada"
-            value={values.rendaEstimada || ''}
-            onChange={e => handleChange('rendaEstimada', e.target.value)}
-            className="form-input"
+          <select
+            id="diaRecebimento"
+            name="diaRecebimento"
+            value={diaRecebimento}
+            onChange={e => setDiaRecebimento(e.target.value)}
+            className="form-select"
             required
-            placeholder="Digite a renda estimada"
-            step="0.01"
-          />
+          >
+            {[...Array(28)].map((_, i) => (
+              <option key={i + 1} value={i + 1}>
+                {i + 1}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex justify-between mt-8">

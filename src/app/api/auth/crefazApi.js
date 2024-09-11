@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import apiConfig from '../../config/apiConfig';
 
 let authToken = null;
 let isAuthenticating = false;
@@ -15,9 +14,9 @@ const authenticate = async () => {
   authPromise = new Promise(async (resolve, reject) => {
     try {
       console.log('Iniciando processo de autenticação...');
-      const response = await axios.post('/api/auth', {});
+      const response = await axios.post('/api/auth');
       console.log('Resposta de autenticação:', response.data);
-      if (response.data.success) {
+      if (response.data.token) {
         authToken = response.data.token;
         console.log('Token obtido e armazenado com sucesso');
         resolve(true);
@@ -25,7 +24,7 @@ const authenticate = async () => {
         reject(new Error('Falha na autenticação'));
       }
     } catch (error) {
-      console.error('Erro durante a autenticação:', error);
+      console.error('Erro durante a autenticação:', error.response?.data || error.message);
       reject(error);
     } finally {
       isAuthenticating = false;
@@ -35,8 +34,9 @@ const authenticate = async () => {
   return authPromise;
 };
 
-export const makeApiCall = async (method, endpoint, data = null, retryCount = 0) => {
+const makeApiCall = async (method, endpoint, data = null) => {
   console.log(`Iniciando chamada API: ${method} ${endpoint}`);
+  console.log('Dados enviados:', data);
 
   if (!authToken) {
     await authenticate();
@@ -45,27 +45,33 @@ export const makeApiCall = async (method, endpoint, data = null, retryCount = 0)
   try {
     const config = {
       method,
-      url: `${API_URL}${endpoint}`,
+      url: `${apiConfig.getBaseUrl()}${endpoint}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${authToken}`,
       },
       ...(method.toLowerCase() === 'get' ? { params: data } : { data }),
     };
-    console.log('Configuração da chamada API:', config);
+    console.log('Configuração completa da chamada API:', config);
     const response = await axios(config);
     console.log(`Resposta da API (${method} ${endpoint}):`, response.data);
     return response.data;
   } catch (error) {
-    console.error(`Erro detalhado na chamada API (${method} ${endpoint}):`, error);
-    if (error.response && error.response.status === 401 && retryCount < 3) {
+    console.error(
+      `Erro detalhado na chamada API (${method} ${endpoint}):`,
+      error.response?.data || error.message
+    );
+    if (error.response && error.response.status === 401) {
       console.log('Token expirado, tentando reautenticar...');
+      authToken = null;
       await authenticate();
-      return makeApiCall(method, endpoint, data, retryCount + 1);
+      return makeApiCall(method, endpoint, data);
     }
     throw error;
   }
 };
+
+export { authenticate, makeApiCall };
 
 const crefazApiService = { authenticate, makeApiCall };
 export default crefazApiService;

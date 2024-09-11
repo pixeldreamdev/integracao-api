@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeApiCall } from '../api/auth/crefazApi';
 
 const FormStep2 = ({ nextStep, prevStep, handleChange, values }) => {
@@ -8,36 +8,35 @@ const FormStep2 = ({ nextStep, prevStep, handleChange, values }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchOcupacoes = useCallback(async () => {
-    console.log('Iniciando busca de ocupações...');
-    try {
-      const response = await makeApiCall('get', '/Contexto/ocupacao');
-      console.log('Resposta completa da API:', response);
-
-      if (response.success && Array.isArray(response.data)) {
-        setOcupacoes(response.data);
-      } else {
-        console.error('Formato de resposta inválido:', response);
-        setError('Formato de dados de ocupações inválido.');
-      }
-    } catch (err) {
-      console.error('Erro ao carregar ocupações:', err);
-      setError('Falha ao carregar ocupações. Por favor, tente novamente.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
+    const fetchOcupacoes = async () => {
+      try {
+        setLoading(true);
+        const response = await makeApiCall('GET', 'Contexto/ocupacao');
+        if (response.success && Array.isArray(response.data)) {
+          setOcupacoes(response.data);
+        } else {
+          throw new Error('Formato de resposta inválido');
+        }
+      } catch (err) {
+        console.error('Erro ao carregar ocupações:', err);
+        setError('Falha ao carregar ocupações. Por favor, tente novamente.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchOcupacoes();
-  }, [fetchOcupacoes]);
+  }, []);
 
   const handleSubmit = e => {
     e.preventDefault();
+    // Lógica de submissão do formulário
     nextStep();
   };
 
   if (loading) return <div>Carregando...</div>;
+  if (error) return <div>Erro: {error}</div>;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
