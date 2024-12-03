@@ -7,11 +7,12 @@ import FormStep6SubStep4 from './substep/FormStep6SubStep4';
 import FormStep6SubStep5 from './substep/FormStep6SubStep5';
 import FormStep6SubStep6 from './substep/FormStep6SubStep6';
 import FormStep6SubStep7 from './substep/FormStep6SubStep7';
+import FormStep6SubStep8 from './substep/FormStep6SubStep8';
 import DevSubStepNavigation from '../components/DevSubStepNavigation';
 
 const FormStep6 = ({ prevStep, nextStep, handleChange, values }) => {
   const [currentSubStep, setCurrentSubStep] = useState(1);
-  const totalSubSteps = 7;
+  const totalSubSteps = 8;
 
   const onNextSubStep = () => {
     if (currentSubStep < totalSubSteps) {
@@ -56,7 +57,9 @@ const FormStep6 = ({ prevStep, nextStep, handleChange, values }) => {
       case 6:
         return <FormStep6SubStep6 {...subStepProps} />;
       case 7:
-        return <FormStep6SubStep7 {...subStepProps} onFormSubmit={onFormSubmit} />;
+        return <FormStep6SubStep7 {...subStepProps} />;
+      case 8:
+        return <FormStep6SubStep8 {...subStepProps} onFormSubmit={onFormSubmit} />;
       default:
         return <div>Subpasso não encontrado</div>;
     }

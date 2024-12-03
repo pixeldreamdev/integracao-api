@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { makeApiCall } from '../../api/auth/crefazApi';
 
 const BANCOS_PRINCIPAIS = [
   { codigo: '001', nome: 'BANCO DO BRASIL S.A.' },
@@ -15,23 +16,73 @@ const FormStep6SubStep4 = ({ onPrevStep, onNextStep, values, handleChange }) => 
   const [bancos, setBancos] = useState(BANCOS_PRINCIPAIS);
   const [loading, setLoading] = useState(false);
   const [bancoError, setBancoError] = useState('');
+  const [contextoProposta, setContextoProposta] = useState(null);
 
   useEffect(() => {
-    const fetchBancos = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('https://brasilapi.com.br/api/banks/v1');
-        setBancos([...BANCOS_PRINCIPAIS, { codigo: '999', nome: 'OUTROS' }, ...response.data]);
+        const [bancosResponse, contextoResponse] = await Promise.all([
+          axios.get('https://brasilapi.com.br/api/banks/v1'),
+          makeApiCall('get', '/Contexto/proposta'),
+        ]);
+
+        setBancos([
+          ...BANCOS_PRINCIPAIS,
+          { codigo: '999', nome: 'OUTROS' },
+          ...bancosResponse.data,
+        ]);
+        setContextoProposta(contextoResponse.data);
       } catch (error) {
-        console.error('Erro ao buscar lista de bancos:', error);
+        console.error('Erro ao buscar dados:', error);
       }
     };
 
-    fetchBancos();
+    fetchData();
   }, []);
+
+  const formatAccountNumber = value => {
+    const cleaned = value.replace(/\D/g, '');
+    const match = cleaned.match(/^(\d{1,5})(\d{0,1})$/);
+    if (match) {
+      return match[2] ? `${match[1]}-${match[2]}` : match[1];
+    }
+    return cleaned;
+  };
+
+  const handleAccountNumberChange = e => {
+    const formatted = formatAccountNumber(e.target.value);
+    handleChange('conta', formatted);
+  };
+
+  const sanitizeValues = values => {
+    const sanitized = {};
+    for (const key in values) {
+      if (Object.hasOwnProperty.call(values, key)) {
+        sanitized[key] =
+          typeof values[key] === 'string' ? values[key].replace(/[^\w\s]/gi, '') : values[key];
+      }
+    }
+    return sanitized;
+  };
 
   const handleSubmit = e => {
     e.preventDefault();
-    onNextStep();
+
+    const sanitizedValues = {
+      ...values,
+      conta: values.conta.replace(/-/g, ''), // Remove apenas o "-"
+    };
+
+    const processedValues = {
+      ...sanitizedValues,
+      bancoId: sanitizedValues.banco,
+      contaId: parseInt(sanitizedValues.tipoConta, 10),
+      tipoContaId: parseInt(sanitizedValues.tipoContaId, 10),
+      tempoContaId: parseInt(sanitizedValues.tempoContaId, 10),
+    };
+
+    console.log('Dados bancários processados:', processedValues);
+    onNextStep(processedValues);
   };
 
   const handleBancoChange = async e => {
@@ -102,63 +153,34 @@ const FormStep6SubStep4 = ({ onPrevStep, onNextStep, values, handleChange }) => 
         </div>
 
         <div className="form-field">
-          <label className="form-label">Possui dígito?</label>
-          <div className="flex space-x-4">
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="possuiDigito"
-                value="sim"
-                checked={values.possuiDigito === 'sim'}
-                onChange={e => handleChange('possuiDigito', e.target.value)}
-                className="form-radio"
-              />
-              <span className="ml-2">Sim</span>
-            </label>
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="possuiDigito"
-                value="nao"
-                checked={values.possuiDigito === 'nao'}
-                onChange={e => handleChange('possuiDigito', e.target.value)}
-                className="form-radio"
-              />
-              <span className="ml-2">Não</span>
-            </label>
-          </div>
-        </div>
-
-        {values.possuiDigito === 'sim' && (
-          <div className="form-field">
-            <label htmlFor="digitoAgencia" className="form-label">
-              Dígito da Agência
-            </label>
-            <input
-              type="text"
-              id="digitoAgencia"
-              name="digitoAgencia"
-              value={values.digitoAgencia || ''}
-              onChange={e => handleChange('digitoAgencia', e.target.value)}
-              className="form-input"
-              maxLength="1"
-              required
-            />
-          </div>
-        )}
-
-        <div className="form-field">
-          <label htmlFor="conta" className="form-label">
-            Nº da conta + dígito
+          <label htmlFor="digitoAgencia" className="form-label">
+            Dígito da Agência
           </label>
           <input
             type="text"
-            id="conta"
-            name="conta"
-            value={values.conta || ''}
-            onChange={e => handleChange('conta', e.target.value)}
+            id="digitoAgencia"
+            name="digitoAgencia"
+            value={values.digitoAgencia || ''}
+            onChange={e => handleChange('digitoAgencia', e.target.value)}
             className="form-input"
+            maxLength="1"
+            required
+          />
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="numero-conta" className="form-label required">
+            Nº da conta + dígito
+          </label>
+          <input
+            className="form-input accountNumber"
+            type="text"
             placeholder="00000-1"
+            name="numeroContaBanco"
+            id="numero-conta"
+            value={values.conta || ''}
+            onChange={handleAccountNumberChange}
+            maxLength="14"
             required
           />
         </div>
@@ -176,45 +198,53 @@ const FormStep6SubStep4 = ({ onPrevStep, onNextStep, values, handleChange }) => 
             required
           >
             <option value="">Selecione o tipo de conta</option>
-            <option value="corrente">Conta Corrente</option>
-            <option value="poupanca">Conta Poupança</option>
-            <option value="salario">Conta Salário</option>
+            {contextoProposta?.conta.map(tipo => (
+              <option key={tipo.id} value={tipo.id}>
+                {tipo.nome}
+              </option>
+            ))}
           </select>
         </div>
 
         <div className="form-field">
-          <label htmlFor="tipoOperacao" className="form-label">
-            Tipo Operação
+          <label htmlFor="tipoContaId" className="form-label">
+            Tipo de Conta (Detalhado)
           </label>
-          <input
-            type="text"
-            id="tipoOperacao"
-            name="tipoOperacao"
-            value={values.tipoOperacao || ''}
-            onChange={e => handleChange('tipoOperacao', e.target.value)}
-            className="form-input"
-            placeholder="Ex: 001, 013, etc."
-          />
+          <select
+            id="tipoContaId"
+            name="tipoContaId"
+            value={values.tipoContaId || ''}
+            onChange={e => handleChange('tipoContaId', e.target.value)}
+            className="form-select"
+            required
+          >
+            <option value="">Selecione o tipo de conta detalhado</option>
+            {contextoProposta?.tipoConta.map(tipo => (
+              <option key={tipo.id} value={tipo.id}>
+                {tipo.nome}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="form-field">
-          <label htmlFor="tempoConta" className="form-label">
+          <label htmlFor="tempoContaId" className="form-label">
             Tempo de conta
           </label>
           <select
-            id="tempoConta"
-            name="tempoConta"
-            value={values.tempoConta || ''}
-            onChange={e => handleChange('tempoConta', e.target.value)}
+            id="tempoContaId"
+            name="tempoContaId"
+            value={values.tempoContaId || ''}
+            onChange={e => handleChange('tempoContaId', e.target.value)}
             className="form-select"
             required
           >
             <option value="">Selecione o tempo de conta</option>
-            <option value="menos6meses">Menos de 6 meses</option>
-            <option value="6a12meses">6 a 12 meses</option>
-            <option value="1a2anos">1 a 2 anos</option>
-            <option value="2a5anos">2 a 5 anos</option>
-            <option value="mais5anos">Mais de 5 anos</option>
+            {contextoProposta?.tempoConta.map(tempo => (
+              <option key={tempo.id} value={tempo.id}>
+                {tempo.nome}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -228,12 +258,9 @@ const FormStep6SubStep4 = ({ onPrevStep, onNextStep, values, handleChange }) => 
         </div>
       </form>
 
-      <div className="mt-8 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-700">
-        <p className="font-medium">Dica:</p>
-        <p className="text-sm">
-          Selecione o seu banco na lista. Se não encontrar, escolha a opção "OUTROS". Certifique-se
-          de fornecer as informações bancárias corretamente para evitar problemas no processamento
-          do seu empréstimo.
+      <div className="mt-8 p-4 bg-blue-50 border-l-4 border-blue-500">
+        <p className="text-sm text-gray-700">
+          Para sua segurança, todos os dados informados serão verificados.
         </p>
       </div>
     </div>

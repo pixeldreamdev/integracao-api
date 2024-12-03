@@ -2,35 +2,122 @@
 
 import React, { useState } from 'react';
 import { checkExistingProposta } from '../lib/services/dbService';
+import Swal from 'sweetalert2';
 
-const FormStep1 = ({ nextStep, handleChange, values }) => {
+const FormStep1 = ({ nextStep, handleChange, values, setValues, setStep }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const formatCPF = cpf => {
+    return cpf.replace(/\D/g, '');
+  };
 
   const handleSubmit = async e => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
+    const formattedCPF = formatCPF(values.cpf);
+
     try {
-      console.log('Enviando CPF:', values.cpf);
-      const result = await checkExistingProposta(values.cpf);
+      console.log('Enviando CPF formatado para verificação:', formattedCPF);
+      const result = await checkExistingProposta(formattedCPF);
+
+      console.log('Resultado da verificação:', result);
 
       if (result && result.exists) {
-        handleChange('propostaId', result.propostaId);
-        // Adicione aqui qualquer lógica adicional para lidar com propostas existentes
-        console.log('Proposta existente encontrada:', result.propostaId);
-      } else {
-        console.log('Nenhuma proposta existente encontrada');
-      }
+        console.log('Proposta existente encontrada:', result);
 
-      nextStep();
+        // Criar o objeto com os valores atualizados
+        const updatedValues = {
+          ...values,
+          propostaId: result.propostaId,
+          nome: result.nome,
+          dataNascimento: result.nascimento,
+          telefone: result.telefone,
+          cidadeId: result.cidadeId,
+          cep: result.cep,
+          bairro: result.bairro,
+          logradouro: result.logradouro,
+          ocupacaoId: result.ocupacaoId,
+        };
+
+        // Verificar se setValues é uma função antes de chamá-la
+        if (typeof setValues === 'function') {
+          setValues(updatedValues);
+        } else {
+          console.error('setValues não é uma função. Valores atualizados:', updatedValues);
+          // Aqui você pode adicionar uma lógica alternativa, se necessário
+        }
+
+        const { isConfirmed } = await Swal.fire({
+          title: 'Proposta Existente',
+          text: 'Encontramos uma proposta existente para este CPF. Deseja continuar com esta proposta?',
+          icon: 'info',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Sim, continuar',
+          cancelButtonText: 'Não, iniciar nova proposta',
+        });
+
+        if (isConfirmed) {
+          console.log(
+            'Usuário optou por continuar com a proposta existente. Redirecionando para o Step 4.'
+          );
+          if (typeof setStep === 'function') {
+            setStep(4);
+          } else {
+            console.error('setStep não é uma função. Tentando usar nextStep.');
+            nextStep();
+          }
+        } else {
+          console.log(
+            'Usuário optou por iniciar uma nova proposta. Limpando dados e indo para o Step 2.'
+          );
+          if (typeof setValues === 'function') {
+            setValues({
+              ...values,
+              propostaId: null,
+              nome: '',
+              dataNascimento: '',
+              telefone: '',
+              cidadeId: '',
+              cep: '',
+              bairro: '',
+              logradouro: '',
+              ocupacaoId: '',
+            });
+          }
+          nextStep();
+        }
+      } else {
+        console.log('Nenhuma proposta existente encontrada. Prosseguindo para o Step 2.');
+        nextStep();
+      }
     } catch (err) {
       console.error('Erro detalhado:', err);
       setError('Ocorreu um erro ao verificar o CPF. Por favor, tente novamente.');
+
+      await Swal.fire({
+        title: 'Erro',
+        text: 'Ocorreu um erro ao verificar o CPF. Por favor, tente novamente.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const formatCPFForDisplay = cpf => {
+    const cleanedCPF = cpf.replace(/\D/g, '');
+    return cleanedCPF.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  };
+
+  const handleCPFChange = e => {
+    const formattedCPF = formatCPFForDisplay(e.target.value);
+    handleChange('cpf', formattedCPF);
   };
 
   return (
@@ -50,14 +137,13 @@ const FormStep1 = ({ nextStep, handleChange, values }) => {
             id="cpf"
             name="cpf"
             value={values.cpf || ''}
-            onChange={e => handleChange('cpf', e.target.value)}
+            onChange={handleCPFChange}
             className="form-input"
             placeholder="000.000.000-00"
             required
-            pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
-            title="Digite um CPF válido no formato: 000.000.000-00"
+            maxLength="14"
           />
-          <p className="form-helper-text">Digite apenas números ou use o formato: 000.000.000-00</p>
+          <p className="form-helper-text">Digite o CPF no formato: 000.000.000-00</p>
         </div>
 
         <div className="form-field">

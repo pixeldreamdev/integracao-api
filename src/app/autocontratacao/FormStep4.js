@@ -1,46 +1,64 @@
 'use client';
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { makeApiCall } from '../api/auth/crefazApi';
 
 const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [produtosOfertas, setProdutosOfertas] = useState([]);
-  const [empresasConveniadas, setEmpresasConveniadas] = useState([]);
   const [diaRecebimento, setDiaRecebimento] = useState('5');
+  const [empresasConveniadas, setEmpresasConveniadas] = useState([]);
+  const fetchedRef = useRef(false);
+
+  const fetchOfertas = useCallback(async () => {
+    if (!values.propostaId || fetchedRef.current) {
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    fetchedRef.current = true;
+
+    try {
+      const response = await makeApiCall('get', `/Proposta/oferta-produto/${values.propostaId}`);
+      console.log('API Response:', response);
+
+      if (response.success && response.data) {
+        setProdutosOfertas(response.data.produtos || []);
+        if (response.data.produtos?.[0]?.convenio) {
+          setEmpresasConveniadas(response.data.produtos[0].convenio);
+        }
+
+        const valorRendaPresumida = response.data.proposta?.valorRendaPresumida;
+        if (valorRendaPresumida !== undefined) {
+          handleChange('valorRendaPresumida', valorRendaPresumida);
+          console.log('Valor Renda Presumida armazenado:', valorRendaPresumida);
+        } else {
+          console.warn('valorRendaPresumida não encontrado na resposta da API');
+        }
+      } else {
+        throw new Error('Falha ao buscar ofertas de produtos');
+      }
+    } catch (err) {
+      console.error('Erro ao buscar ofertas:', err);
+      setError('Não foi possível carregar as ofertas. Por favor, tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  }, [values.propostaId, handleChange]);
 
   useEffect(() => {
-    const fetchOfertas = async () => {
-      if (!values.propostaId) {
-        setError('ID da proposta não encontrado');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await makeApiCall('get', `/Proposta/oferta-produto/${values.propostaId}`);
-        if (response.success && response.data.produtos) {
-          setProdutosOfertas(response.data.produtos);
-          if (response.data.produtos[0] && response.data.produtos[0].convenio) {
-            setEmpresasConveniadas(response.data.produtos[0].convenio);
-          }
-        } else {
-          throw new Error('Falha ao buscar ofertas de produtos');
-        }
-      } catch (err) {
-        console.error('Erro ao buscar ofertas:', err);
-        setError('Não foi possível carregar as ofertas. Por favor, tente novamente.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOfertas();
-  }, [values.propostaId]);
+    if (values.propostaId && !fetchedRef.current) {
+      fetchOfertas();
+    }
+  }, [fetchOfertas, values.propostaId]);
 
   const handleSubmit = e => {
     e.preventDefault();
+
+    if (values.valorRendaPresumida === undefined) {
+      console.warn('valorRendaPresumida não definido ao avançar para o próximo passo');
+    }
 
     if (!values.empresaConveniada) {
       setError('Por favor, selecione uma empresa conveniada.');
@@ -71,25 +89,25 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
       return;
     }
 
-    // Armazenar dados reais
+    // Armazenar dados
     handleChange('numeroInstalacaoReal', values.numeroInstalacao);
     handleChange('dataLeituraReal', values.dataLeitura);
     handleChange('diaRecebimento', diaRecebimento);
 
-    // Em homologação, definir valores nulos para rota e leitura
+    // Em homologação, definir valores vazios para rota e leitura
     if (process.env.NEXT_PUBLIC_ENV === 'homologacao') {
-      handleChange('numeroInstalacao', null);
-      handleChange('dataLeitura', null);
+      handleChange('numeroInstalacao', '');
+      handleChange('dataLeitura', '');
     }
 
     // Armazenar outros dados necessários
-    handleChange('produtoId', produtosOfertas[0].id);
+    handleChange('produtoId', produtosOfertas[0]?.id);
     handleChange('convenioId', selectedConvenio.id);
-    handleChange('tabelaJurosId', selectedConvenio.tabelaJuros[0]?.id || '');
+    handleChange('tabelaJurosId', selectedConvenio.tabelaJuros?.[0]?.id || '');
 
     // Armazenar IDs dos dados do convênio
     const convenioDados = selectedConvenio.convenioDados;
-    if (convenioDados && convenioDados.length >= 2) {
+    if (convenioDados?.length >= 2) {
       handleChange('convenioDadosId1', convenioDados[0].convenioDadosId);
       handleChange('convenioDadosId2', convenioDados[1].convenioDadosId);
     }
@@ -119,6 +137,14 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
             <label className="block text-sm font-medium text-gray-700">CPF</label>
             <p className="text-lg text-primary">{values.cpf}</p>
           </div>
+          {values.valorRendaPresumida !== undefined && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Renda Presumida</label>
+              <p className="text-lg text-primary">
+                R$ {Number(values.valorRendaPresumida).toFixed(2)}
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="form-field">
@@ -172,6 +198,7 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
             required
           />
         </div>
+
         <div className="form-field">
           <label htmlFor="diaRecebimento" className="form-label">
             Dia de Recebimento

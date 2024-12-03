@@ -19,10 +19,12 @@ export async function GET(request) {
 
     const existingProposta = await propostas.findOne({ cpf });
 
+    console.log('Proposta encontrada no MongoDB:', existingProposta);
+
     if (existingProposta) {
       return NextResponse.json({
         exists: true,
-        propostaId: existingProposta.propostaId,
+        ...existingProposta,
       });
     } else {
       return NextResponse.json({ exists: false });

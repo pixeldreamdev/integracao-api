@@ -11,6 +11,7 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [planoSelecionado, setPlanoSelecionado] = useState(null);
+  const [propostaProcessada, setPropostaProcessada] = useState(false);
 
   const calcularVencimento = useCallback(async () => {
     setLoading(true);
@@ -56,7 +57,7 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
             convenioId: values.convenioId,
             tabelaJurosId: values.tabelaJurosId,
             vencimento: vencimentoCalculado,
-            renda: values.rendaEstimada,
+            renda: values.valorRendaPresumida,
             recalculo: null,
           }
         );
@@ -79,6 +80,11 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
   );
 
   const simularOferta = async () => {
+    if (!valorSelecionado) {
+      setError('Por favor, selecione um valor para o empréstimo.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -89,7 +95,7 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
         valor: valorSelecionado,
         tipoCalculo: 0,
         vencimento: vencimento,
-        renda: values.rendaEstimada,
+        renda: values.valorRendaPresumida,
         recalculo: vencimento,
         valorDebitoConcorrente: null,
         diaRecebimento: Number(values.diaRecebimento),
@@ -103,6 +109,72 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
     } catch (err) {
       console.error('Erro ao simular oferta:', err);
       setError('Erro ao simular oferta: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const processarProposta = async () => {
+    if (!planoSelecionado || !valorSelecionado) {
+      setError('Por favor, selecione um plano de parcelamento e um valor para o empréstimo.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const dadosOferta = {
+        id: values.propostaId,
+        convenioId: values.convenioId,
+        tabelaJurosId: values.tabelaJurosId,
+        produtoId: values.produtoId,
+        plano: planoSelecionado.prazo,
+        prestacao: planoSelecionado.valor,
+        renda: values.valorRendaPresumida,
+        diaRecebimento: Number(values.diaRecebimento),
+        tipoRenda: 0,
+        vencimento: vencimento,
+        valor: valorSelecionado,
+        tipoCalculo: 0,
+        adicionais: [
+          {
+            convenioDadosId: values.convenioDadosId1,
+            valor: values.numeroInstalacaoReal,
+            convenioId: values.convenioId,
+          },
+          {
+            convenioDadosId: values.convenioDadosId2,
+            valor: values.dataLeituraReal,
+            convenioId: values.convenioId,
+          },
+        ],
+        contratosRefin: [],
+        orgaoId: null,
+        valorDebitoConcorrente: null,
+      };
+
+      const response = await makeApiCall(
+        'PUT',
+        `/Proposta/oferta-produto/${values.propostaId}`,
+        dadosOferta
+      );
+
+      if (response.success) {
+        // Armazenar os valores selecionados no estado global do formulário
+        handleChange('valorContratado', valorSelecionado);
+        handleChange('prazoSelecionado', planoSelecionado.prazo);
+        handleChange('prestacaoSelecionada', planoSelecionado.valor);
+        handleChange('ofertaProcessada', response.data);
+        handleChange('vencimentoSelecionado', vencimento);
+        setPropostaProcessada(true);
+        nextStep();
+      } else {
+        throw new Error(response.message || 'Falha ao processar a oferta');
+      }
+    } catch (err) {
+      console.error('Erro ao processar a oferta:', err);
+      setError('Erro ao processar a oferta: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -124,27 +196,14 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
     simularOferta();
   };
 
-  const handleContinuar = () => {
-    if (!planoSelecionado) {
-      setError('Por favor, selecione um plano de parcelamento.');
-      return;
-    }
-
-    // Armazenar a oferta selecionada nos valores do formulário
-    handleChange('ofertaSelecionada', {
-      plano: planoSelecionado.prazo,
-      prestacao: planoSelecionado.valor,
-      valor: valorSelecionado,
-      vencimento: vencimento,
-    });
-
-    nextStep();
+  const formatCurrency = value => {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   };
 
   return (
     <div className="form-section fade-in bg-white p-6 rounded-lg shadow-md">
       <h2 className="form-section-title text-2xl font-bold text-primary mb-6">
-        Simulação de Empréstimo
+        Simulação e Processamento de Empréstimo
       </h2>
       {error && (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
@@ -152,6 +211,16 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
           <p>{error}</p>
         </div>
       )}
+      {propostaProcessada && (
+        <div
+          className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4"
+          role="alert"
+        >
+          <p className="font-bold">Sucesso</p>
+          <p>A proposta foi processada com sucesso!</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="form-field">
           <label htmlFor="valorSolicitado" className="block text-sm font-medium text-gray-700 mb-1">
@@ -171,26 +240,27 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
               step="0.01"
               className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-12 sm:text-sm border-gray-300 rounded-md"
               placeholder="0.00"
+              required
             />
           </div>
           <input
             type="range"
             min={valorMinimo}
             max={valorMaximo}
-            value={valorSelecionado || 0}
+            value={valorSelecionado || valorMinimo || 0}
             onChange={e => setValorSelecionado(Number(e.target.value))}
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2"
           />
           <div className="flex justify-between text-sm text-gray-500 mt-1">
-            <span>Min: R$ {valorMinimo?.toFixed(2)}</span>
-            <span>Max: R$ {valorMaximo?.toFixed(2)}</span>
+            <span>Min: {formatCurrency(valorMinimo || 0)}</span>
+            <span>Max: {formatCurrency(valorMaximo || 0)}</span>
           </div>
         </div>
 
         <button
           type="submit"
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          disabled={loading}
+          disabled={loading || !valorSelecionado}
         >
           {loading ? (
             <>
@@ -218,16 +288,17 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
                         value={index}
                         onChange={() => setPlanoSelecionado(simulacao)}
                         className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                        required
                       />
                       <label
                         htmlFor={`plano-${index}`}
                         className="ml-3 flex-1 block text-sm font-medium text-gray-700"
                       >
-                        {simulacao.prazo} parcelas de R$ {simulacao.valor.toFixed(2)}
+                        {simulacao.prazo} parcelas de {formatCurrency(simulacao.valor)}
                       </label>
                       <div className="ml-4 flex-shrink-0">
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Total: R$ {(simulacao.prazo * simulacao.valor).toFixed(2)}
+                          Total: {formatCurrency(simulacao.prazo * simulacao.valor)}
                         </span>
                       </div>
                     </div>
@@ -247,11 +318,19 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
           Voltar
         </button>
         <button
-          onClick={handleContinuar}
-          disabled={!planoSelecionado}
+          onClick={processarProposta}
+          disabled={!planoSelecionado || !valorSelecionado || loading || propostaProcessada}
           className="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Continuar
+          {loading ? (
+            <>
+              <FaSpinner className="animate-spin mr-2 inline" /> Processando...
+            </>
+          ) : propostaProcessada ? (
+            'Proposta Processada'
+          ) : (
+            'Processar Proposta'
+          )}
         </button>
       </div>
     </div>

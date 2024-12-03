@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { makeApiCall } from '../../api/auth/crefazApi';
 
-const ReferenceFields = ({ index, reference, updateReference }) => (
+const ReferenceFields = ({ index, reference, updateReference, tiposReferencia }) => (
   <div className="space-y-4 mb-6 p-4 bg-gray-50 rounded-lg">
     <div className="form-field">
       <label htmlFor={`nome${index}`} className="form-label">
@@ -46,10 +47,11 @@ const ReferenceFields = ({ index, reference, updateReference }) => (
         required
       >
         <option value="">Selecione o tipo</option>
-        <option value="familiar">Familiar</option>
-        <option value="amigo">Amigo</option>
-        <option value="colega">Colega de trabalho</option>
-        <option value="outro">Outro</option>
+        {tiposReferencia.map(tipo => (
+          <option key={tipo.id} value={tipo.id.toString()}>
+            {tipo.nome}
+          </option>
+        ))}
       </select>
     </div>
   </div>
@@ -60,6 +62,34 @@ const FormStep6SubStep5 = ({ onPrevStep, onNextStep, values, handleChange }) => 
     values.referencias || [{ nome: '', telefone: '', tipoReferencia: '' }]
   );
   const [showExtraReference, setShowExtraReference] = useState(false);
+  const [tiposReferencia, setTiposReferencia] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const dataFetchedRef = useRef(false);
+
+  const fetchTiposReferencia = useCallback(async () => {
+    if (dataFetchedRef.current) return;
+    dataFetchedRef.current = true;
+
+    try {
+      setLoading(true);
+      const response = await makeApiCall('get', '/Contexto/proposta');
+      if (response.success && response.data.tipoReferencia) {
+        setTiposReferencia(response.data.tipoReferencia);
+      } else {
+        throw new Error('Falha ao buscar tipos de referência');
+      }
+    } catch (err) {
+      console.error('Erro ao buscar tipos de referência:', err);
+      setError('Não foi possível carregar os tipos de referência. Por favor, tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTiposReferencia();
+  }, [fetchTiposReferencia]);
 
   const updateReference = useCallback((index, field, value) => {
     setReferencias(prevReferencias =>
@@ -69,10 +99,15 @@ const FormStep6SubStep5 = ({ onPrevStep, onNextStep, values, handleChange }) => 
 
   useEffect(() => {
     handleChange('referencias', referencias);
-  }, [referencias, handleChange]);
+  }, [referencias]);
 
   const handleSubmit = e => {
     e.preventDefault();
+    const processedReferencias = referencias.map(ref => ({
+      ...ref,
+      tipoReferencia: parseInt(ref.tipoReferencia, 10),
+    }));
+    handleChange('referencias', processedReferencias);
     onNextStep();
   };
 
@@ -86,11 +121,19 @@ const FormStep6SubStep5 = ({ onPrevStep, onNextStep, values, handleChange }) => 
     }
   };
 
+  if (loading) {
+    return <div>Carregando tipos de referência...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
   return (
     <div className="form-section fade-in">
       <h2 className="form-section-title">Dados de Referências Pessoais</h2>
       <p className="text-text-light mb-6">
-        O Crefaz não entrará em contato com nenhuma das referências adicionadas.
+        A Crefaz não entrará em contato com nenhuma das referências adicionadas.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -100,6 +143,7 @@ const FormStep6SubStep5 = ({ onPrevStep, onNextStep, values, handleChange }) => 
             index={index}
             reference={reference}
             updateReference={updateReference}
+            tiposReferencia={tiposReferencia}
           />
         ))}
 

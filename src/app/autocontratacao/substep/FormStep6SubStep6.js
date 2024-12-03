@@ -1,14 +1,44 @@
 'use client';
 
-import React, { useState } from 'react';
-import profissoes from '../../data/profissoes';
+import React, { useState, useEffect, useCallback } from 'react';
+import { makeApiCall } from '../../api/auth/crefazApi';
+import profissoesId from '../../data/profissoes';
 
 const FormStep6SubStep6 = ({ onPrevStep, onNextStep, values, handleChange }) => {
   const [showOutrasRendas, setShowOutrasRendas] = useState(!!values.outrasRendas);
+  const [temposEmprego, setTemposEmprego] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchTemposEmprego = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await makeApiCall('get', '/Contexto/proposta');
+      if (response.success && response.data.tempoEmprego) {
+        setTemposEmprego(response.data.tempoEmprego);
+      } else {
+        throw new Error('Falha ao buscar tempos de emprego');
+      }
+    } catch (err) {
+      console.error('Erro ao buscar tempos de emprego:', err);
+      setError('Não foi possível carregar os tempos de emprego. Por favor, tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTemposEmprego();
+  }, [fetchTemposEmprego]);
 
   const handleSubmit = e => {
     e.preventDefault();
-    onNextStep();
+    const processedValues = {
+      ...values,
+      profissaoId: parseInt(values.profissao),
+      tempoEmpregoId: parseInt(values.tempoEmprego),
+    };
+    onNextStep(processedValues);
   };
 
   const handleOutrasRendasChange = e => {
@@ -16,6 +46,14 @@ const FormStep6SubStep6 = ({ onPrevStep, onNextStep, values, handleChange }) => 
     handleChange('outrasRendas', value);
     setShowOutrasRendas(!!value);
   };
+
+  if (loading) {
+    return <div>Carregando dados profissionais...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
 
   return (
     <div className="form-section fade-in">
@@ -61,27 +99,29 @@ const FormStep6SubStep6 = ({ onPrevStep, onNextStep, values, handleChange }) => 
             <option value="Profissional">Profissional Liberal</option>
             <option value="Empresário">Empresário / Proprietário</option>
             <option value="outros">Outros</option>
-
-            <option value="empresario">Empresário</option>
-            <option value="outro">Outro</option>
           </select>
         </div>
 
-        <select
-          id="profissao"
-          name="profissao"
-          value={values.profissao || ''}
-          onChange={e => handleChange('profissao', e.target.value)}
-          className="form-select"
-          required
-        >
-          <option value="">Selecione uma profissão</option>
-          {profissoes.map((profissao, index) => (
-            <option key={index} value={profissao}>
-              {profissao}
-            </option>
-          ))}
-        </select>
+        <div className="form-field">
+          <label htmlFor="profissao" className="form-label">
+            Profissão
+          </label>
+          <select
+            id="profissao"
+            name="profissao"
+            value={values.profissao || ''}
+            onChange={e => handleChange('profissao', e.target.value)}
+            className="form-select"
+            required
+          >
+            <option value="">Selecione uma profissão</option>
+            {profissoesId.map(profissao => (
+              <option key={profissao.id} value={profissao.id}>
+                {profissao.nome}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="form-field">
           <label htmlFor="tempoEmprego" className="form-label">
@@ -93,14 +133,14 @@ const FormStep6SubStep6 = ({ onPrevStep, onNextStep, values, handleChange }) => 
             value={values.tempoEmprego || ''}
             onChange={e => handleChange('tempoEmprego', e.target.value)}
             className="form-select"
-            required
+            // required
           >
             <option value="">Selecione</option>
-            <option value="menos6meses">Menos de 6 meses</option>
-            <option value="6a12meses">6 a 12 meses</option>
-            <option value="1a2anos">1 a 2 anos</option>
-            <option value="2a5anos">2 a 5 anos</option>
-            <option value="mais5anos">Mais de 5 anos</option>
+            {temposEmprego.map(tempo => (
+              <option key={tempo.id} value={tempo.id}>
+                {tempo.nome}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -116,7 +156,7 @@ const FormStep6SubStep6 = ({ onPrevStep, onNextStep, values, handleChange }) => 
             onChange={e => handleChange('telefoneRH', e.target.value)}
             className="form-input"
             placeholder="(00) 00000-0000"
-            required
+            // required
           />
         </div>
 
@@ -131,7 +171,7 @@ const FormStep6SubStep6 = ({ onPrevStep, onNextStep, values, handleChange }) => 
             value={values.pisPasep || ''}
             onChange={e => handleChange('pisPasep', e.target.value)}
             className="form-input"
-            required
+            // required
           />
         </div>
 

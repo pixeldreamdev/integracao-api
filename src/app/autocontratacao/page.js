@@ -13,32 +13,67 @@ import DevNavigation from '../components/DevNavigation';
 export default function Autocontratacao() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    // Inicialize seus campos de formulário aqui
+    cpf: '',
+    nome: '',
+    dataNascimento: '',
+    telefone: '',
+    cidadeId: '',
+    cep: '',
+    bairro: '',
+    logradouro: '',
+    ocupacaoId: '',
+    propostaId: null,
+    // Adicione outros campos conforme necessário
   });
 
-  const nextStep = () => setStep(prev => Math.min(prev + 1, 6));
-  const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
+  const nextStep = () => {
+    setStep(prev => {
+      const newStep = Math.min(prev + 1, 6);
+      console.log(`Avançando para o step ${newStep}`);
+      return newStep;
+    });
+  };
+
+  const prevStep = () => {
+    setStep(prev => {
+      const newStep = Math.max(prev - 1, 1);
+      console.log(`Voltando para o step ${newStep}`);
+      return newStep;
+    });
+  };
 
   const handleChange = (name, value) => {
+    console.log(`Atualizando campo "${name}" com valor:`, value);
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const renderStep = () => {
-    const props = { nextStep, prevStep, handleChange, values: formData };
+    const commonProps = {
+      nextStep,
+      prevStep,
+      handleChange,
+      values: formData,
+      setValues: setFormData,
+      setStep,
+    };
+
+    console.log(`Renderizando step ${step}`);
+
     switch (step) {
       case 1:
-        return <FormStep1 {...props} />;
+        return <FormStep1 {...commonProps} />;
       case 2:
-        return <FormStep2 {...props} />;
+        return <FormStep2 {...commonProps} />;
       case 3:
-        return <FormStep3 {...props} />;
+        return <FormStep3 {...commonProps} />;
       case 4:
-        return <FormStep4 {...props} />;
+        return <FormStep4 {...commonProps} />;
       case 5:
-        return <FormStep5 {...props} />;
+        return <FormStep5 {...commonProps} />;
       case 6:
-        return <FormStep6 {...props} />;
+        return <FormStep6 {...commonProps} />;
       default:
+        console.error(`Step inválido: ${step}`);
         return null;
     }
   };

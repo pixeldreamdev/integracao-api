@@ -3,10 +3,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { makeApiCall } from '../api/auth/crefazApi';
-import { saveProposta } from '../lib/services/dbService';
+import { saveProposta, checkExistingProposta } from '../lib/services/dbService';
 import { getNotificationUrl } from '../utils/urlHelpers';
+import Swal from 'sweetalert2';
 
-const FormStep3 = ({ nextStep, prevStep, handleChange, values }) => {
+const FormStep3 = ({ nextStep, prevStep, handleChange, values, setStep }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -24,7 +25,7 @@ const FormStep3 = ({ nextStep, prevStep, handleChange, values }) => {
           handleChange('cidade', response.data.localidade);
           handleChange('uf', response.data.uf);
 
-          // Buscar cidadeId da API
+          // Buscar cidadeId e ufId da API
           const cidadeResponse = await makeApiCall('post', '/Endereco/Cidade', {
             nomeCidade: response.data.localidade,
             uf: response.data.uf,
@@ -32,8 +33,9 @@ const FormStep3 = ({ nextStep, prevStep, handleChange, values }) => {
 
           if (cidadeResponse.success && cidadeResponse.data.length > 0) {
             handleChange('cidadeId', cidadeResponse.data[0].cidadeId);
+            handleChange('ufId', cidadeResponse.data[0].ufId); // Salvar o ufId
           } else {
-            throw new Error('Não foi possível obter o ID da cidade');
+            throw new Error('Não foi possível obter o ID da cidade ou UF');
           }
         } else {
           setError('CEP não encontrado');
@@ -53,6 +55,29 @@ const FormStep3 = ({ nextStep, prevStep, handleChange, values }) => {
     setError('');
 
     try {
+      // Verificar se já existe uma proposta para este CPF
+      const existingProposta = await checkExistingProposta(values.cpf);
+
+      if (existingProposta && existingProposta.exists) {
+        const result = await Swal.fire({
+          title: 'Proposta Existente',
+          text: 'Já existe uma proposta para este CPF. Deseja continuar com o processo?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Continuar',
+          cancelButtonText: 'Cancelar',
+        });
+
+        if (result.isConfirmed) {
+          handleChange('propostaId', existingProposta.propostaId);
+          nextStep();
+          return;
+        } else {
+          setStep(1);
+          return;
+        }
+      }
+
       // Formatar dados da proposta
       const propostaData = {
         nome: values.nome,
@@ -61,6 +86,7 @@ const FormStep3 = ({ nextStep, prevStep, handleChange, values }) => {
         telefone: values.telefone.replace(/\D/g, ''),
         ocupacaoId: Number(values.ocupacao),
         cidadeId: values.cidadeId,
+        ufId: values.ufId, // Adicionar o ufId aqui
         cep: values.cep.replace(/\D/g, ''),
         bairro: values.bairro,
         logradouro: values.logradouro,
@@ -70,45 +96,58 @@ const FormStep3 = ({ nextStep, prevStep, handleChange, values }) => {
       console.log('Dados da proposta a serem enviados:', propostaData);
 
       // Cadastrar proposta na API externa
-      console.log('Cadastrando proposta na API externa...');
       const propostaResponse = await makeApiCall('post', '/Proposta', propostaData);
 
-      console.log('Resposta do cadastro de proposta:', propostaResponse);
+      if (propostaResponse.success && propostaResponse.data.aprovado) {
+        const result = await Swal.fire({
+          title: 'Proposta Aprovada!',
+          text: 'Sua proposta foi aprovada. Deseja continuar?',
+          icon: 'success',
+          showCancelButton: true,
+          confirmButtonText: 'Continuar',
+          cancelButtonText: 'Cancelar',
+          timer: 10000,
+          timerProgressBar: true,
+          didOpen: toast => {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+          },
+          willClose: () => {
+            if (Swal.getTimerLeft() === 0) {
+              setStep(1);
+            }
+          },
+        });
 
-      if (!propostaResponse.success) {
-        throw new Error(
-          propostaResponse.errors
-            ? propostaResponse.errors.join(', ')
-            : 'Falha ao cadastrar proposta'
-        );
+        if (result.isConfirmed) {
+          const mongoDbData = {
+            ...propostaData,
+            propostaId: propostaResponse.data.propostaId,
+            aprovado: propostaResponse.data.aprovado,
+          };
+          await saveProposta(mongoDbData);
+          handleChange('propostaId', propostaResponse.data.propostaId);
+          nextStep();
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          setStep(1);
+        }
+      } else {
+        await Swal.fire({
+          title: 'Proposta Não Aprovada',
+          text: 'Infelizmente, sua proposta não foi aprovada neste momento.',
+          icon: 'error',
+          confirmButtonText: 'Entendi',
+        });
+        setStep(1);
       }
-
-      // Salvar proposta no MongoDB
-      console.log('Salvando proposta no MongoDB...');
-      const mongoDbData = {
-        ...propostaData,
-        propostaId: propostaResponse.data.propostaId,
-        aprovado: propostaResponse.data.aprovado,
-      };
-      try {
-        await saveProposta(mongoDbData);
-        console.log('Proposta salva com sucesso no MongoDB');
-      } catch (mongoError) {
-        console.error('Erro ao salvar no MongoDB:', mongoError);
-        // Aqui você pode decidir se quer continuar ou não
-        // Por exemplo, você pode exibir um aviso ao usuário, mas ainda permitir que ele continue
-        setError(
-          'Aviso: Proposta cadastrada, mas houve um erro ao salvar localmente. Isto não afeta seu empréstimo.'
-        );
-      }
-
-      handleChange('propostaId', propostaResponse.data.propostaId);
-      nextStep();
     } catch (error) {
       console.error('Erro ao processar formulário:', error);
-      setError(
-        error.message || 'Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.'
-      );
+      Swal.fire({
+        title: 'Erro',
+        text: 'Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
     } finally {
       setLoading(false);
     }

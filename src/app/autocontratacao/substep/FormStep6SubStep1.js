@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { makeApiCall } from '../../api/auth/crefazApi';
 
 const FormField = ({ label, name, type, value, onChange, options, placeholder, disabled }) => {
   const baseClasses = 'form-input w-full';
@@ -53,6 +54,7 @@ const FormField = ({ label, name, type, value, onChange, options, placeholder, d
 };
 
 const FormStep6SubStep1 = ({ onNextStep, values, handleChange }) => {
+  const [contextoProposta, setContextoProposta] = useState(null);
   const [grausInstrucao, setGrausInstrucao] = useState([]);
   const [nacionalidades, setNacionalidades] = useState([]);
   const [ufs, setUfs] = useState([]);
@@ -60,70 +62,119 @@ const FormStep6SubStep1 = ({ onNextStep, values, handleChange }) => {
   const [cidadesEmissao, setCidadesEmissao] = useState([]);
   const [loadingCidades, setLoadingCidades] = useState(false);
 
-  useEffect(() => {
-    // Carregar UFs
-    const fetchUFs = async () => {
-      try {
-        const response = await axios.get(
-          'https://servicodados.ibge.gov.br/api/v1/localidades/estados'
-        );
-        const ufsData = response.data.map(uf => ({
-          value: uf.sigla,
-          label: uf.nome,
-        }));
-        setUfs(ufsData);
-      } catch (error) {
-        console.error('Erro ao carregar UFs:', error);
-      }
-    };
+  const fetchData = useCallback(async () => {
+    try {
+      const [contextoPropostaResponse, grauInstrucaoResponse, nacionalidadeResponse, ufsResponse] =
+        await Promise.all([
+          makeApiCall('get', '/Contexto/proposta'),
+          makeApiCall('get', '/Contexto/grau-instrucao'),
+          makeApiCall('get', '/Endereco/Pais'),
+          axios.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados'),
+        ]);
 
-    fetchUFs();
-
-    // Simulando chamadas de API para outros dados
-    setGrausInstrucao([
-      { value: 1, label: 'Ensino Fundamental' },
-      { value: 2, label: 'Ensino Médio' },
-      { value: 3, label: 'Ensino Superior' },
-    ]);
-
-    setNacionalidades([
-      { value: 1, label: 'Brasileira' },
-      { value: 2, label: 'Estrangeira' },
-    ]);
+      setContextoProposta(contextoPropostaResponse.data);
+      setGrausInstrucao(
+        grauInstrucaoResponse.data.map(item => ({ value: item.id, label: item.nome }))
+      );
+      setNacionalidades(
+        nacionalidadeResponse.data.map(item => ({ value: item.id, label: item.nome }))
+      );
+      setUfs(ufsResponse.data.map(uf => ({ value: uf.id, label: uf.nome, sigla: uf.sigla })));
+    } catch (error) {
+      console.error('Erro ao carregar dados iniciais:', error);
+    }
   }, []);
 
   useEffect(() => {
-    const fetchCidades = async (uf, setCidades) => {
-      if (!uf) return;
-      setLoadingCidades(true);
-      try {
-        const response = await axios.get(
-          `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`
-        );
-        const cidadesData = response.data.map(cidade => ({
-          value: cidade.id,
-          label: cidade.nome,
-        }));
-        setCidades(cidadesData);
-      } catch (error) {
-        console.error('Erro ao carregar cidades:', error);
-      } finally {
-        setLoadingCidades(false);
-      }
-    };
+    fetchData();
+  }, [fetchData]);
 
+  const fetchCidades = useCallback(async (ufId, setCidades) => {
+    if (!ufId) return;
+    setLoadingCidades(true);
+    try {
+      const response = await axios.get(
+        `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${ufId}/municipios`
+      );
+      const cidadesData = response.data.map(cidade => ({
+        value: cidade.id.toString(),
+        label: cidade.nome,
+        mesorregiao: cidade.microrregiao?.mesorregiao?.id,
+        regiaoIntermediaria: cidade['regiao-intermediaria']?.id,
+      }));
+      setCidades(cidadesData);
+    } catch (error) {
+      console.error('Erro ao carregar cidades:', error);
+    } finally {
+      setLoadingCidades(false);
+    }
+  }, []);
+
+  useEffect(() => {
     if (values.ufNaturalidade) {
       fetchCidades(values.ufNaturalidade, setCidadesNaturalidade);
     }
-
     if (values.ufEmissao) {
       fetchCidades(values.ufEmissao, setCidadesEmissao);
     }
-  }, [values.ufNaturalidade, values.ufEmissao]);
+  }, [values.ufNaturalidade, values.ufEmissao, fetchCidades]);
 
   const handleSubmit = e => {
     e.preventDefault();
-    onNextStep();
+
+    const selectedUf = ufs.find(uf => uf.value === values.ufNaturalidade);
+    const selectedCidade = cidadesNaturalidade.find(
+      cidade => cidade.value === values.cidadeNaturalidade
+    );
+
+    const processedValues = {
+      ...values,
+      sexoId: contextoProposta?.sexo.find(item => item.id.toString() === values.sexo)?.id,
+      estadoCivilId: contextoProposta?.estadoCivil.find(
+        item => item.id.toString() === values.estadoCivil
+      )?.id,
+      grauInstrucaoId: parseInt(values.grauInstrucao),
+      nacionalidadeId: parseInt(values.nacionalidade),
+      ufEmissaoId: parseInt(values.ufEmissao),
+      naturalidadeUfId: selectedUf ? parseInt(selectedUf.value) : null,
+      naturalidadeCidadeId: selectedCidade ? parseInt(selectedCidade.value) : null,
+      naturalidadeMesorregiaoId: selectedCidade ? selectedCidade.mesorregiao : null,
+      naturalidadeRegiaoIntermediariaId: selectedCidade ? selectedCidade.regiaoIntermediaria : null,
+      nomeUfNaturalidade: selectedUf ? selectedUf.label : '',
+      nomeCidadeNaturalidade: selectedCidade ? selectedCidade.label : '',
+      siglaUfNaturalidade: selectedUf ? selectedUf.sigla : '',
+      pep: values.pep === 'sim',
+      nomeConjuge: values.nomeConjuge.trim() || null, // Trata o campo como opcional
+    };
+
+    if (
+      processedValues.naturalidadeMesorregiaoId &&
+      !processedValues.naturalidadeRegiaoIntermediariaId
+    ) {
+      processedValues.naturalidadeId = processedValues.naturalidadeMesorregiaoId;
+      processedValues.tipoNaturalidade = 'mesorregiao';
+    } else if (
+      !processedValues.naturalidadeMesorregiaoId &&
+      processedValues.naturalidadeRegiaoIntermediariaId
+    ) {
+      processedValues.naturalidadeId = processedValues.naturalidadeRegiaoIntermediariaId;
+      processedValues.tipoNaturalidade = 'regiaoIntermediaria';
+    } else if (
+      processedValues.naturalidadeMesorregiaoId &&
+      processedValues.naturalidadeRegiaoIntermediariaId
+    ) {
+      processedValues.naturalidadeId = processedValues.naturalidadeRegiaoIntermediariaId;
+      processedValues.tipoNaturalidade = 'regiaoIntermediaria';
+    } else {
+      processedValues.naturalidadeId = processedValues.naturalidadeCidadeId;
+      processedValues.tipoNaturalidade = 'cidade';
+    }
+
+    delete processedValues.naturalidadeMesorregiaoId;
+    delete processedValues.naturalidadeRegiaoIntermediariaId;
+
+    console.log('Dados processados:', processedValues);
+    onNextStep(processedValues);
   };
 
   return (
@@ -162,15 +213,24 @@ const FormStep6SubStep1 = ({ onNextStep, values, handleChange }) => {
       />
 
       <FormField
+        label="Nome do Pai"
+        name="nomeConjuge"
+        type="text"
+        value={values.nomeConjuge || ''}
+        onChange={handleChange}
+        placeholder="Nome completo do Pai"
+      />
+
+      <FormField
         label="Sexo"
         name="sexo"
         type="select"
         value={values.sexo}
         onChange={handleChange}
-        options={[
-          { value: 'masculino', label: 'Masculino' },
-          { value: 'feminino', label: 'Feminino' },
-        ]}
+        options={
+          contextoProposta?.sexo.map(item => ({ value: item.id.toString(), label: item.nome })) ||
+          []
+        }
       />
 
       <FormField
@@ -179,25 +239,13 @@ const FormStep6SubStep1 = ({ onNextStep, values, handleChange }) => {
         type="select"
         value={values.estadoCivil}
         onChange={handleChange}
-        options={[
-          { value: 'solteiro', label: 'Solteiro(a)' },
-          { value: 'casado', label: 'Casado(a)' },
-          { value: 'divorciado', label: 'Divorciado(a)' },
-          { value: 'viuvo', label: 'Viúvo(a)' },
-          { value: 'uniaoEstavel', label: 'União Estável' },
-        ]}
+        options={
+          contextoProposta?.estadoCivil.map(item => ({
+            value: item.id.toString(),
+            label: item.nome,
+          })) || []
+        }
       />
-
-      {(values.estadoCivil === 'casado' || values.estadoCivil === 'uniaoEstavel') && (
-        <FormField
-          label="Nome do(a) Cônjuge"
-          name="nomeConjuge"
-          type="text"
-          value={values.nomeConjuge}
-          onChange={handleChange}
-          placeholder="Nome completo do(a) cônjuge"
-        />
-      )}
 
       <FormField
         label="Número do RG/CNH"
@@ -287,7 +335,14 @@ const FormStep6SubStep1 = ({ onNextStep, values, handleChange }) => {
         name="cidadeNaturalidade"
         type="select"
         value={values.cidadeNaturalidade}
-        onChange={handleChange}
+        onChange={(name, value) => {
+          handleChange(name, value);
+          const selectedCity = cidadesNaturalidade.find(cidade => cidade.value === value);
+          if (selectedCity) {
+            handleChange('naturalidadeMesorregiaoId', selectedCity.mesorregiao);
+            handleChange('naturalidadeRegiaoIntermediariaId', selectedCity.regiaoIntermediaria);
+          }
+        }}
         options={cidadesNaturalidade}
         disabled={loadingCidades || !values.ufNaturalidade}
       />
