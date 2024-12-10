@@ -1,5 +1,5 @@
 const apiConfig = {
-  ambiente: process.env.NEXT_PUBLIC_ENV || 'homolog', // Define o ambiente explicitamente usando uma variável de ambiente
+  ambiente: process.env.NEXT_PUBLIC_ENV || 'prod', // Define o ambiente explicitamente usando uma variável de ambiente
 
   ambientes: {
     homolog: {
