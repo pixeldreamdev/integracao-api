@@ -1,5 +1,5 @@
 const apiConfig = {
-  ambiente: process.env.NODE_ENV === 'production' ? 'prod' : 'homolog',
+  ambiente: process.env.NEXT_PUBLIC_ENV || 'homolog', // Define o ambiente explicitamente usando uma variável de ambiente
 
   ambientes: {
     homolog: {
@@ -11,9 +11,10 @@ const apiConfig = {
   },
 
   getBaseUrl: function () {
+    const ambienteConfig = this.ambientes[this.ambiente] || this.ambientes.homolog;
     console.log('Ambiente atual:', this.ambiente);
-    console.log('URL base:', this.ambientes[this.ambiente].baseUrl);
-    return this.ambientes[this.ambiente].baseUrl;
+    console.log('URL base:', ambienteConfig.baseUrl);
+    return ambienteConfig.baseUrl;
   },
 };
 
