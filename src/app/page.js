@@ -107,8 +107,23 @@ export default function Home() {
             </div>
             <div>
               <h3 className="text-xl font-semibold mb-4">Contato</h3>
-              <p>Email: contato@crefaz.com</p>
-              <p>Telefone: (11) 1234-5678</p>
+              <p className="flex items-center">
+                <FaEnvelope className="mr-2" />
+                <a href="mailto:contato@crefaz.com" className="hover:underline">
+                  lwgcred@gmail.com
+                </a>
+              </p>
+              <p className="flex items-center">
+                <FaWhatsapp className="mr-2 text-green-500" />
+                <a
+                  href="https://wa.me/5511958255717"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  (11) 95825-5717
+                </a>
+              </p>
             </div>
           </div>
         </div>
