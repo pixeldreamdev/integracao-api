@@ -12,7 +12,7 @@ const CTASection = () => {
         </p>
         <a
           href="./components/autocontratacao"
-          className="bg-white text-primary font-semibold py-3 px-8 rounded-full hover:bg-gray-100 transition-colors"
+          className="bg-white text-primary font-semibold py-3 px-8 rounded-full hover:bg-yellow-500 hover:text-white transition-colors"
         >
           Simular Empréstimo
         </a>
