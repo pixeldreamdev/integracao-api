@@ -5,6 +5,7 @@ import Link from 'next/link';
 import HeroSection from './components/HeroSection';
 import ServiceBox from './components/ServiceBox';
 import CTASection from './components/CTASection';
+import { FaEnvelope, FaWhatsapp } from 'react-icons/fa';
 
 export default function Home() {
   return (
@@ -103,8 +104,8 @@ export default function Home() {
             </div>
             <div>
               <h3 className="text-xl font-semibold mb-4">Contato</h3>
-              <p>Email: contato@crefaz.com</p>
-              <p>Telefone: (11) 1234-5678</p>
+              <p>Email: lwgcred@gmail.com</p>
+              <p>Telefone: (11) 95825-5717</p>
             </div>
           </div>
         </div>
