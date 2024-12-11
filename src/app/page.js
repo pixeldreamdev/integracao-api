@@ -5,10 +5,14 @@ import Link from 'next/link';
 import HeroSection from './components/HeroSection';
 import ServiceBox from './components/ServiceBox';
 import CTASection from './components/CTASection';
+import PopupAlert from './components/PopupAlert';
+import { FaEnvelope, FaWhatsapp } from 'react-icons/fa';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-yellow-50">
+      <PopupAlert />
+
       <main className="container mx-auto px-4 py-8">
         <HeroSection />
 
@@ -66,11 +70,11 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="bg-primary text-white py-8">
+      <footer className="bg-black text-white py-8">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-xl font-semibold mb-4">Sobre a Crefaz</h3>
+              <h3 className="text-xl font-semibold mb-4">Sobre a LwgCred</h3>
               <p>
                 Somos uma empresa comprometida em oferecer as melhores soluções financeiras para
                 nossos clientes.
@@ -103,8 +107,23 @@ export default function Home() {
             </div>
             <div>
               <h3 className="text-xl font-semibold mb-4">Contato</h3>
-              <p>Email: contato@crefaz.com</p>
-              <p>Telefone: (11) 1234-5678</p>
+              <p className="flex items-center">
+                <FaEnvelope className="mr-2" />
+                <a href="mailto:contato@crefaz.com" className="hover:underline">
+                  lwgcred@gmail.com
+                </a>
+              </p>
+              <p className="flex items-center">
+                <FaWhatsapp className="mr-2 text-green-500" />
+                <a
+                  href="https://wa.me/5511958255717"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  (11) 95825-5717
+                </a>
+              </p>
             </div>
           </div>
         </div>

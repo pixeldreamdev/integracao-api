@@ -20,7 +20,7 @@ const HeroSection = () => {
         <div className="space-x-4">
           <a
             href="/autocontratacao"
-            className="bg-primary text-white font-semibold py-3 px-6 rounded-full hover:bg-primary-dark transition-colors"
+            className="bg-primary text-white font-semibold py-3 px-6 rounded-full hover:bg-yellow-500 transition-colors"
           >
             Fazer Simulação
           </a>
