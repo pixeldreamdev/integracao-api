@@ -5,6 +5,8 @@ import Link from 'next/link';
 import HeroSection from './components/HeroSection';
 import ServiceBox from './components/ServiceBox';
 import CTASection from './components/CTASection';
+import PopupAlert from './components/PopupAlert';
+import { FaEnvelope, FaWhatsapp } from 'react-icons/fa';
 
 export default function Home() {
   return (
