@@ -86,7 +86,7 @@ const FormStep6SubStep7 = ({ onPrevStep, onNextStep, values, handleChange }) => 
       };
       console.log('Parâmetros da requisição:', params);
 
-      const response = await makeApiCall('POST', 'Proposta/tipo-anexos', params);
+      const response = await makeApiCall('POST', '/Proposta/tipo-anexos', params);
       console.log('Resposta da API:', response);
 
       if (response.success && response.data) {
@@ -179,7 +179,7 @@ const FormStep6SubStep7 = ({ onPrevStep, onNextStep, values, handleChange }) => 
     async (documentoId, file) => {
       try {
         const base64WithHeader = await fileToBase64WithHeader(file);
-        const response = await makeApiCall('PUT', `Proposta/${values.propostaId}/imagem`, {
+        const response = await makeApiCall('PUT', `/Proposta/${values.propostaId}/imagem`, {
           documentoId: documentoId,
           conteudo: base64WithHeader,
         });
