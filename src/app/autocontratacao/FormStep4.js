@@ -20,7 +20,7 @@ const FormStep4 = ({ nextStep, prevStep, handleChange, values }) => {
     fetchedRef.current = true;
 
     try {
-      const response = await makeApiCall('get', `/Proposta/oferta-produto/${values.propostaId}`);
+      const response = await makeApiCall('get', `Proposta/oferta-produto/${values.propostaId}`);
       console.log('API Response:', response);
 
       if (response.success && response.data) {
