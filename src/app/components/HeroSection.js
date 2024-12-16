@@ -3,11 +3,11 @@ import Link from 'next/link';
 
 const HeroSection = () => {
   return (
-    <section className="text-center py-16">
+    <section className="text-center py-16 mt-40">
       <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary">
-        A melhor oferta de crédito está aqui
+        A melhor oferta de crédito
         <p>Rápido e sem burocracia.</p>
-        <p className="text-4xl md:text-2xl font-bold mb-4 text-secondary">
+        <p className="text-4xl md:text-2xl font-bold mb-4 text-secondary mt-5">
           Realizar seus sonhos nunca foi tão simples
         </p>
       </h1>
