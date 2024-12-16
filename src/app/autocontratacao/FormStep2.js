@@ -12,7 +12,7 @@ const FormStep2 = ({ nextStep, prevStep, handleChange, values }) => {
     const fetchOcupacoes = async () => {
       try {
         setLoading(true);
-        const response = await makeApiCall('GET', 'Contexto/ocupacao');
+        const response = await makeApiCall('GET', '/Contexto/ocupacao');
         if (response.success && Array.isArray(response.data)) {
           setOcupacoes(response.data);
         } else {
