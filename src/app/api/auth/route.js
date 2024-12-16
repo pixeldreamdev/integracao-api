@@ -4,7 +4,7 @@ import apiConfig from '../../config/apiConfig';
 
 export async function POST() {
   try {
-    const response = await axios.post(`${apiConfig.getBaseUrl()}Usuario/login`, {
+    const response = await axios.post(`${apiConfig.getBaseUrl()}/Usuario/login`, {
       login: process.env.CREFAZ_LOGIN,
       senha: process.env.CREFAZ_SENHA,
       apiKey: process.env.CREFAZ_API_KEY,

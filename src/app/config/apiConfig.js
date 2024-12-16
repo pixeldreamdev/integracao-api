@@ -3,10 +3,10 @@ const apiConfig = {
 
   ambientes: {
     homolog: {
-      baseUrl: 'https://app2-crefaz-api-external-stag.azurewebsites.net/api/',
+      baseUrl: 'https://app2-crefaz-api-external-stag.azurewebsites.net/api',
     },
     prod: {
-      baseUrl: 'https://api-externo.crefazon.com.br/api/',
+      baseUrl: 'https://api-externo.crefazon.com.br/api',
     },
   },
 
