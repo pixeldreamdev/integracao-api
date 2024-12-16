@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
 import HeroSection from './components/HeroSection';
 import ServiceBox from './components/ServiceBox';
 import CTASection from './components/CTASection';
@@ -9,6 +8,50 @@ import PopupAlert from './components/PopupAlert';
 import { FaEnvelope, FaWhatsapp } from 'react-icons/fa';
 
 export default function Home() {
+  const [isServiceVisible, setIsServiceVisible] = useState(false);
+  const [isWhyVisible, setIsWhyVisible] = useState(false);
+
+  useEffect(() => {
+    // Função para observar se o elemento entrou na viewport
+    const observeVisibility = (targetId, setVisible) => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setVisible(true);
+          } else {
+            setVisible(false);
+          }
+        },
+        {
+          rootMargin: '0px',
+          threshold: 0.3, // Quando 30% do elemento for visível
+        }
+      );
+
+      const element = document.getElementById(targetId);
+      if (element) {
+        observer.observe(element);
+      }
+
+      // Cleanup: Desconectar o observer quando o componente for desmontado
+      return () => {
+        if (element) {
+          observer.unobserve(element);
+        }
+      };
+    };
+
+    // Observar as seções de "Serviços" e "Por que escolher"
+    const cleanupServiceObserver = observeVisibility('services', setIsServiceVisible);
+    const cleanupWhyObserver = observeVisibility('whyChoose', setIsWhyVisible);
+
+    // Limpar os observers quando o componente for desmontado
+    return () => {
+      cleanupServiceObserver();
+      cleanupWhyObserver();
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-yellow-50">
       <PopupAlert />
@@ -16,7 +59,12 @@ export default function Home() {
       <main className="container mx-auto px-4 py-8">
         <HeroSection />
 
-        <section className="my-16">
+        <section
+          id="services" // Elemento que queremos observar
+          className={`my-16 mt-32 transition-opacity duration-1000 ${
+            isServiceVisible ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
           <h2 className="text-3xl font-bold text-center mb-8 text-primary">Nossos Serviços</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <ServiceBox
@@ -49,9 +97,14 @@ export default function Home() {
 
         <CTASection />
 
-        <section className="my-16">
-          <h2 className="text-3xl font-bold text-center mb-8  text-primary">
-            Por que escolher a Lwg Cred ?
+        <section
+          id="whyChoose" // Elemento que queremos observar
+          className={`my-16 transition-opacity duration-1000 ${
+            isWhyVisible ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <h2 className="text-3xl font-bold text-center mb-8 text-primary">
+            Por que escolher a Lwg Cred?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">

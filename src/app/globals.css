@@ -149,4 +149,12 @@
   .hover-lift {
     @apply transition-transform duration-300 ease-in-out hover:-translate-y-1;
   }
+  .from-green-50 {
+    --tw-gradient-from: #000000 var(--tw-gradient-from-position);
+    --tw-gradient-to: rgb(240 253 244 / 0) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+  .to-yellow-50 {
+    --tw-gradient-to: #000000 var(--tw-gradient-to-position);
+  }
 }
