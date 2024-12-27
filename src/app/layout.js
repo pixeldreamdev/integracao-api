@@ -2,6 +2,7 @@ import './globals.css';
 import Header from './components/Headers';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Open_Sans } from 'next/font/google';
+import Image from 'next/image';
 
 const font = Open_Sans({
   weight: ['400', '500'],
