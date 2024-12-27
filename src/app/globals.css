@@ -57,6 +57,15 @@
   }
 }
 /* INICIO- HEROsECTION */
+/* animtion */
+.animate-loading {
+  background-color: #32cd32; /* Cor verde durante o carregamento */
+  transform: scale(1.1);
+  transition:
+    background-color 0.5s ease,
+    transform 0.5s ease;
+}
+/* animtion */
 @keyframes fadeIn {
   from {
     opacity: 0;

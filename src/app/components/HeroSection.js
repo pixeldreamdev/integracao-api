@@ -9,6 +9,13 @@ const HeroSection = () => {
 
   const images = ['/images/image1.jpg', '/images/image2.jpg'];
 
+  const isMobile = () => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <= 768; // Define como mobile dispositivos com largura ≤ 768px
+    }
+    return false;
+  };
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -39,8 +46,14 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
-  const handleClick = (e, path) => {
+  const handleClick = async (e, path) => {
     e.preventDefault();
+    if (isMobile()) {
+      const button = e.currentTarget;
+      button.classList.add('animate-loading'); // Adiciona uma classe para animação
+
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Aguarda 1 segundo
+    }
     router.push(path);
   };
 
