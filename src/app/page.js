@@ -11,15 +11,9 @@ import Image from 'next/image';
 export default function Home() {
   const [isServiceVisible, setIsServiceVisible] = useState(false);
   const [isWhyVisible, setIsWhyVisible] = useState(false);
-<<<<<<< HEAD
-
-  useEffect(() => {
-    // Função para observar se o elemento entrou na viewport
-=======
   const [isImageVisible, setIsImageVisible] = useState(false); // Estado para controle de visibilidade da imagem
 
   useEffect(() => {
->>>>>>> ec6e0d62d7dc5a1db9041a507703c6100656b5a7
     const observeVisibility = (targetId, setVisible) => {
       const observer = new IntersectionObserver(
         ([entry]) => {
@@ -31,11 +25,7 @@ export default function Home() {
         },
         {
           rootMargin: '0px',
-<<<<<<< HEAD
-          threshold: 0.3, // Quando 30% do elemento for visível
-=======
           threshold: 0.3,
->>>>>>> ec6e0d62d7dc5a1db9041a507703c6100656b5a7
         }
       );
 
@@ -44,10 +34,6 @@ export default function Home() {
         observer.observe(element);
       }
 
-<<<<<<< HEAD
-      // Cleanup: Desconectar o observer quando o componente for desmontado
-=======
->>>>>>> ec6e0d62d7dc5a1db9041a507703c6100656b5a7
       return () => {
         if (element) {
           observer.unobserve(element);
@@ -55,16 +41,6 @@ export default function Home() {
       };
     };
 
-<<<<<<< HEAD
-    // Observar as seções de "Serviços" e "Por que escolher"
-    const cleanupServiceObserver = observeVisibility('services', setIsServiceVisible);
-    const cleanupWhyObserver = observeVisibility('whyChoose', setIsWhyVisible);
-
-    // Limpar os observers quando o componente for desmontado
-    return () => {
-      cleanupServiceObserver();
-      cleanupWhyObserver();
-=======
     const cleanupServiceObserver = observeVisibility('services', setIsServiceVisible);
     const cleanupWhyObserver = observeVisibility('whyChoose', setIsWhyVisible);
     const cleanupImageObserver = observeVisibility('imageSection', setIsImageVisible); // Observa a visibilidade da imagem
@@ -73,7 +49,6 @@ export default function Home() {
       cleanupServiceObserver();
       cleanupWhyObserver();
       cleanupImageObserver();
->>>>>>> ec6e0d62d7dc5a1db9041a507703c6100656b5a7
     };
   }, []);
 
@@ -82,60 +57,6 @@ export default function Home() {
       <div className="relative z-10 min-h-screen">
         <PopupAlert />
         <HeroSection />
-<<<<<<< HEAD
-
-        <section
-          id="services" // Elemento que queremos observar
-          className={`my-16 mt-32 transition-opacity duration-1000 ${
-            isServiceVisible ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          <h2 className="text-3xl font-bold text-center mb-8 text-primary">Nossos Serviços</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <ServiceBox
-              title="Empréstimo na Conta de Luz"
-              description="Sem comprovação de renda, mesmo para negativados, e liberadas em até 24 horas, tudo feito de forma digital!"
-              icon="lightbulb"
-            />
-            <ServiceBox
-              title="Portabilidade do Consignado"
-              description="Saia das taxas abusivas e pague até 30% mais barato."
-              icon="refresh"
-            />
-            <ServiceBox
-              title="Cartão Consignado"
-              description="Desconto em medicamentos, menor taxa entre os cartões de crédito."
-              icon="credit-card"
-            />
-            <ServiceBox
-              title="Antecipação Saque-Aniversário FGTS"
-              description="Para aposentados, beneficiários do INSS ou servidores públicos."
-              icon="calendar"
-            />
-            <ServiceBox
-              title="Débito em Conta"
-              description="Dinheiro rápido e sem burocracia para você utilizar como quiser, tudo em até 24 horas."
-              icon="wallet"
-            />
-          </div>
-        </section>
-
-        <CTASection />
-
-        <section
-          id="whyChoose" // Elemento que queremos observar
-          className={`my-16 transition-opacity duration-1000 ${
-            isWhyVisible ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          <h2 className="text-3xl font-bold text-center mb-8 text-primary">
-            Por que escolher a Lwg Cred?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-              <h3 className="text-xl font-semibold mb-2">Rápido e Fácil</h3>
-              <p>Processo 100% online, sem burocracia e com aprovação em minutos.</p>
-=======
         <main className="container mx-auto px-4 py-8">
           <section
             id="services"
@@ -168,7 +89,6 @@ export default function Home() {
                 description="Dinheiro rápido e sem burocracia para você utilizar como quiser, tudo em até 24 horas."
                 icon="wallet"
               />
->>>>>>> ec6e0d62d7dc5a1db9041a507703c6100656b5a7
             </div>
           </section>
 
