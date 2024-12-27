@@ -7,10 +7,6 @@ export function getNotificationUrl() {
     throw new Error('Base URL não está configurada corretamente.');
   }
 
-<<<<<<< HEAD
-  console.log('Ambiente:', process.env.NEXT_PUBLIC_ENV || 'prod');
-=======
-  console.log('Ambiente atual:', process.env.NEXT_PUBLIC_ENV || 'homolog');
->>>>>>> ec6e0d62d7dc5a1db9041a507703c6100656b5a7
+  console.log('Ambiente atual:', process.env.NEXT_PUBLIC_ENV || 'prod');
   return `${baseUrl}/api/notificacao`;
 }
