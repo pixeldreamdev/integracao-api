@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Header = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -26,121 +27,122 @@ const Header = () => {
     setMenuOpen(false);
   };
 
+  const menuVariants = {
+    closed: {
+      opacity: 0,
+      y: -20,
+      transition: { duration: 0.3 },
+    },
+    open: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.3 },
+    },
+  };
+
+  const menuItems = [
+    { path: '/quem-somos', label: 'Quem Somos' },
+    { path: '/servicos', label: 'Serviços' },
+    { path: '/contato', label: 'Contato' },
+    { path: '/autocontratacao', label: 'Simular Empréstimo' },
+  ];
+
   return (
     <header
       className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-md' : 'bg-transparent'
+        isScrolled ? 'water-effect' : 'bg-transparent'
       }`}
     >
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        {/* Logo */}
+      <div className="container mx-auto px-4 py-2 flex items-center justify-between">
         <a
           href="/"
           onClick={e => handleNavigation(e, '/')}
-          className={`text-2xl font-bold transition-colors duration-300 ${
-            isScrolled ? 'text-primary' : 'text-secondary-dark'
+          className={`text-2xl font-bold rounded-full py-2 px-4 transition-colors duration-300 ${
+            isScrolled ? 'text-primary' : 'text-secondary-dark bg-transparent'
           }`}
         >
           <strong>Lwg Cred</strong>
         </a>
 
-        {/* Botão de menu hambúrguer */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="lg:hidden text-gray-600 focus:outline-none ml-auto"
-          aria-label="Toggle menu"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className={`h-6 w-6 transition-colors duration-300 ${
-              isScrolled ? 'text-gray-600' : 'text-white'
-            }`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            {menuOpen ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            )}
-          </svg>
-        </button>
-
-        {/* Navegação */}
-        <nav
-          className={`absolute lg:static bg-white lg:bg-transparent top-16 left-0 right-0 p-4 lg:p-0 transition-transform transform lg:transform-none ${
-            menuOpen ? 'block' : 'hidden'
-          } lg:flex lg:items-center lg:space-x-6 shadow-md lg:shadow-none`}
-        >
-          <ul className="flex flex-col lg:flex-row lg:space-x-6 w-full lg:w-auto space-y-4 lg:space-y-0 text-center">
-            <li>
-              <a
-                href="/quem-somos"
-                onClick={e => handleNavigation(e, '/quem-somos')}
-                className={`text-lime-600 ${
-                  isScrolled ? 'hover:text-black' : 'hover:text-yellow-500'
-                } transition-colors duration-300`}
-              >
-                Quem Somos
-              </a>
-            </li>
-            <li>
-              <a
-                href="/servicos"
-                onClick={e => handleNavigation(e, '/servicos')}
-                className={`text-lime-600 ${
-                  isScrolled ? 'hover:text-black' : 'hover:text-yellow-500'
-                } transition-colors duration-300`}
-              >
-                Serviços
-              </a>
-            </li>
-            <li>
-              <a
-                href="/contato"
-                onClick={e => handleNavigation(e, '/contato')}
-                className={`text-lime-600 ${
-                  isScrolled ? 'hover:text-black' : 'hover:text-yellow-500'
-                } transition-colors duration-300`}
-              >
-                Contato
-              </a>
-            </li>
+        <nav className="hidden lg:flex lg:items-center lg:space-x-6">
+          <ul className="flex flex-row space-x-6 text-center">
+            {menuItems.slice(0, 3).map(item => (
+              <li key={item.path}>
+                <a
+                  href={item.path}
+                  onClick={e => handleNavigation(e, item.path)}
+                  className="relative text-lime-600 overflow-hidden rounded-full py-2 px-4 hover:text-yellow-500 transition-colors duration-300 group"
+                >
+                  <span className="absolute inset-0 bg-lime-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 rounded-full"></span>
+                  <span className="relative z-10">{item.label}</span>
+                </a>
+              </li>
+            ))}
           </ul>
         </nav>
 
-        {/* Botão "Simular Empréstimo" */}
         <div className="hidden lg:block">
           <a
             href="/autocontratacao"
             onClick={e => handleNavigation(e, '/autocontratacao')}
-            className="bg-secondary text-primary font-semibold py-2 px-4 rounded hover:bg-secondary-dark transition-colors"
+            className="relative text-lime-600 overflow-hidden rounded-full py-2 px-4 hover:text-yellow-500 transition-colors duration-300 group"
           >
-            Simular Empréstimo
+            <span className="absolute inset-0 bg-lime-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 rounded-full"></span>
+            <span className="relative z-10">Simular Empréstimo</span>
           </a>
         </div>
-      </div>
 
-      {/* Botão "Simular Empréstimo" em telas pequenas */}
-      <div className={`lg:hidden w-full text-center mt-4 ${menuOpen ? 'block' : 'hidden'}`}>
-        <a
-          href="/autocontratacao"
-          onClick={e => handleNavigation(e, '/autocontratacao')}
-          className="bg-secondary text-primary font-semibold py-2 px-4 rounded hover:bg-secondary-dark transition-colors inline-block"
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="lg:hidden relative z-50 p-2 rounded-lg bg-lime-600 focus:outline-none focus:ring-2 focus:ring-lime-500 transition-colors duration-200"
+          aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
         >
-          Simular Empréstimo
-        </a>
+          <div className="relative w-6 h-5">
+            <span
+              className={`absolute h-0.5 w-6 bg-yellow-600 transform transition-all duration-300 ease-in-out ${
+                menuOpen ? 'rotate-45 translate-y-2' : 'translate-y-0'
+              }`}
+            />
+            <span
+              className={`absolute h-0.5 w-6 bg-yellow-600 transform transition-all duration-300 ease-in-out translate-y-2 ${
+                menuOpen ? 'opacity-0' : 'opacity-100'
+              }`}
+            />
+            <span
+              className={`absolute h-0.5 w-6 bg-white transform transition-all duration-300 ease-in-out translate-y-4 ${
+                menuOpen ? '-rotate-45 -translate-y-0' : 'translate-y-4'
+              }`}
+            />
+          </div>
+        </button>
+
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              initial="closed"
+              animate="open"
+              exit="closed"
+              variants={menuVariants}
+              className="absolute top-0 left-0 right-0 min-h-screen bg-white shadow-xl lg:hidden z-40"
+            >
+              <div className="pt-20 px-6 pb-8 space-y-2">
+                {menuItems.map(item => (
+                  <motion.a
+                    key={item.path}
+                    href={item.path}
+                    onClick={e => handleNavigation(e, item.path)}
+                    className="relative block py-3 px-4 text-lg font-medium text-lime-600 hover:text-yellow-500 overflow-hidden rounded-lg group"
+                    whileHover={{ x: 4 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span className="absolute inset-0 bg-lime-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 rounded-lg"></span>
+                    <span className="relative z-10">{item.label}</span>
+                  </motion.a>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </header>
   );

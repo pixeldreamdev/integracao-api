@@ -56,6 +56,147 @@
     transform: translateX(0);
   }
 }
+/* INICIO- HEROsECTION */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 2s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 2s ease-out;
+}
+
+@keyframes zoomInOut {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-zoom {
+  animation: zoomInOut 15s ease-in-out infinite;
+
+  @keyframes zoom {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .animate-zoom {
+    animation: zoom 20s infinite;
+  }
+
+  /* FIM- HEROsECTION */
+}
+/* INICIO-HEADER */
+/* Animação de carregamento */
+a.relative::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgb(60, 255, 0);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease-in-out;
+}
+
+a.relative:hover::before {
+  transform: scaleX(0);
+}
+
+a.relative:hover {
+  color: rgb(0, 0, 0); /* Muda a cor do texto ao passar o mouse */
+}
+
+.group:hover .group-hover\\:scale-x-100 {
+  transform: scaleX(1) !important;
+}
+
+/* FIM-HEADER */
+
+/* INICIO BOTÃO HEROSECTION */
+.relative a::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transform: scaleX(0); /* Começa com a escala X em 0 */
+  transform-origin: left; /* Ponto de origem da transformação */
+  transition:
+    opacity 0s,
+    transform 0.9s; /* Duração da transição */
+  border-radius: inherit;
+}
+
+.relative a:hover::before {
+  opacity: 1;
+  transform: scaleX(1); /* Aumenta a escala X para 1 */
+}
+
+.relative a span {
+  transition: color 0.3s;
+}
+
+.relative a:hover span {
+  color: rgb(0, 0, 0); /* Muda a cor do texto para branco */
+}
+
+.relative a.loading span {
+  color: rgb(0, 0, 0); /* Muda a cor do texto para branco */
+}
+
+/* FIM- BOTAO HEROSECTION */
+
+/* efeito agua */
+/* Ajuste do z-index para garantir que o menu não conflite com o header */
+.header {
+  z-index: 50; /* Ajuste este valor conforme necessário */
+}
+
+.nav {
+  z-index: 40; /* O valor deve ser menor que o z-index do header */
+}
+
+/* Classe para o efeito de água, transparência e desfoque no fundo */
+.water-effect {
+  background: rgba(255, 255, 255, 0.2); /* Cor branca com transparência */
+  backdrop-filter: blur(10px); /* Desfoque do fundo */
+  border-radius: 10px; /* Bordas arredondadas para um efeito mais suave */
+  padding: 10px; /* Espaçamento interno */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para dar profundidade */
+}
+
+/* efeito agua */
+
 @layer base {
   body {
     @apply bg-gradient-to-br from-green-50 to-yellow-50 min-h-screen;

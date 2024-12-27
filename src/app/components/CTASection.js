@@ -11,7 +11,7 @@ const CTASection = () => {
           mercado!
         </p>
         <a
-          href="./components/autocontratacao"
+          href="/autocontratacao"
           className="bg-white text-primary font-semibold py-3 px-8 rounded-full hover:bg-yellow-500 hover:text-white transition-colors"
         >
           Simular Empréstimo
