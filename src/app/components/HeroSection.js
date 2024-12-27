@@ -7,11 +7,7 @@ const HeroSection = () => {
   const [currentImage, setCurrentImage] = useState(0);
   const router = useRouter();
 
-  const images = [
-    '/images/image1.jpg',
-    '/images/image2.jpg',
-    // '/images/image3.jpg', // Adicione mais URLs de imagens conforme necessário
-  ];
+  const images = ['/images/image1.jpg', '/images/image2.jpg'];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
