@@ -9,6 +9,13 @@ const HeroSection = () => {
 
   const images = ['/images/image1.jpg', '/images/image2.jpg'];
 
+  const isMobile = () => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <= 768; // Define como mobile dispositivos com largura ≤ 768px
+    }
+    return false;
+  };
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -39,8 +46,14 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
-  const handleClick = (e, path) => {
+  const handleClick = async (e, path) => {
     e.preventDefault();
+    if (isMobile()) {
+      const button = e.currentTarget;
+      button.classList.add('animate-loading'); // Adiciona uma classe para animação
+
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Aguarda 1 segundo
+    }
     router.push(path);
   };
 
@@ -68,10 +81,10 @@ const HeroSection = () => {
           isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-10'
         }`}
       >
-        <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight animate-fadeIn">
+        <h1 className="text-[2.75rem] md:text-6xl font-extrabold mb-6 leading-tight animate-fadeIn">
           A Melhor Oferta de Crédito
         </h1>
-        <p className="text-lg md:text-xl lg:text-2xl font-medium mb-6 animate-slideIn">
+        <p className="text-lg md:text-xl lg:text-2xl font-medium mb-10 animate-slideIn">
           Rápido, sem burocracia e feito para você.
         </p>
         <div className="space-y-4 md:space-x-4 md:space-y-0 flex flex-col md:flex-row items-center justify-center">
