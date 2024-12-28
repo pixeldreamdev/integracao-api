@@ -81,10 +81,10 @@ const HeroSection = () => {
           isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-10'
         }`}
       >
-        <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight animate-fadeIn">
+        <h1 className="text-[2.75rem] md:text-6xl font-extrabold mb-6 leading-tight animate-fadeIn">
           A Melhor Oferta de Crédito
         </h1>
-        <p className="text-lg md:text-xl lg:text-2xl font-medium mb-6 animate-slideIn">
+        <p className="text-lg md:text-xl lg:text-2xl font-medium mb-10 animate-slideIn">
           Rápido, sem burocracia e feito para você.
         </p>
         <div className="space-y-4 md:space-x-4 md:space-y-0 flex flex-col md:flex-row items-center justify-center">
