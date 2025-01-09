@@ -15,7 +15,9 @@ const Header = () => {
       setIsScrolled(window.scrollY > 50);
     };
 
+    handleScroll(); // Força a verificação inicial para aplicar efeito ao carregar.
     window.addEventListener('scroll', handleScroll);
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -50,7 +52,7 @@ const Header = () => {
   return (
     <header
       className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'water-effect' : 'bg-transparent'
+        isScrolled ? 'water-effect shadow-lg' : 'bg-transparent'
       }`}
     >
       <div className="container mx-auto px-4 py-2 flex items-center justify-between">
@@ -58,7 +60,7 @@ const Header = () => {
           href="/"
           onClick={e => handleNavigation(e, '/')}
           className={`text-2xl font-bold rounded-full py-2 px-4 transition-colors duration-300 ${
-            isScrolled ? 'text-primary' : 'text-secondary-dark bg-transparent'
+            isScrolled ? 'text-white' : 'text-lime-600'
           }`}
         >
           <strong>Lwg Cred</strong>
@@ -123,9 +125,9 @@ const Header = () => {
               animate="open"
               exit="closed"
               variants={menuVariants}
-              className="absolute top-0 left-0 right-0 min-h-screen bg-white shadow-xl lg:hidden z-40"
+              className="absolute top-0 left-0 right-0 min-h-screen water-effect shadow-xl lg:hidden z-40"
             >
-              <div className="pt-20 px-6 pb-8 space-y-2">
+              <div className="pt-20 px-30 pb-8 space-y-2">
                 {menuItems.map(item => (
                   <motion.a
                     key={item.path}
@@ -135,7 +137,7 @@ const Header = () => {
                     whileHover={{ x: 4 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <span className="absolute inset-0 bg-lime-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 rounded-lg"></span>
+                    <span className="absolute inset-0 bg-lime-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-1000 rounded-lg"></span>
                     <span className="relative z-10">{item.label}</span>
                   </motion.a>
                 ))}
