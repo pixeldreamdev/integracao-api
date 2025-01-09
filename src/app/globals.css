@@ -188,7 +188,7 @@ a.relative:hover {
 
 /* Classe para o efeito de água, transparência e desfoque no fundo */
 .water-effect {
-  background: rgba(255, 255, 255, 0.2); /* Cor branca com transparência */
+  background: rgba(0, 0, 0, 0.2); /* Cor branca com transparência */
   backdrop-filter: blur(10px); /* Desfoque do fundo */
   border-radius: 10px; /* Bordas arredondadas para um efeito mais suave */
   padding: 10px; /* Espaçamento interno */
@@ -196,6 +196,15 @@ a.relative:hover {
 }
 
 /* efeito agua */
+
+/* css mobile */
+@media screen and (max-width: 768px) {
+  .mobile-text {
+    font-size: 16px;
+    color: blue;
+  }
+}
+/* css mobile */
 
 @layer base {
   body {
