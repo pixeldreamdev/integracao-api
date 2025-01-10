@@ -29,6 +29,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+        custom: ['Maison Neue', 'sans-serif'],
       },
       borderRadius: {
         DEFAULT: '0.375rem',
