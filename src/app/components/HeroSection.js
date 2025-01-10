@@ -7,7 +7,7 @@ const HeroSection = () => {
   const [currentImage, setCurrentImage] = useState(0);
   const router = useRouter();
 
-  const images = ['/images/image1.jpg', '/images/image2.jpg'];
+  const images = ['/images/credito1.jpg', '/images/credito.jpg', '/images/image1.jpg'];
 
   const isMobile = () => {
     if (typeof window !== 'undefined') {
@@ -87,6 +87,16 @@ const HeroSection = () => {
         <p className="text-lg md:text-xl lg:text-2xl font-medium mb-10 animate-slideIn">
           Rápido, sem burocracia e feito para você.
         </p>
+
+        {/* Novo Container Personalizado */}
+        <div className="bg-white text-black rounded-lg p-6 shadow-lg mb-10">
+          <h2 className="text-2xl font-bold mb-2">Dinheiro rápido</h2>
+          <p className="mb-2">Empréstimo na Conta de Luz</p>
+          <p className="mb-2">
+            Até R$ 1.300,00 sem comprovação de renda e liberado em até 24 horas.
+          </p>
+        </div>
+
         <div className="space-y-4 md:space-x-4 md:space-y-0 flex flex-col md:flex-row items-center justify-center">
           <a
             href="/autocontratacao"
