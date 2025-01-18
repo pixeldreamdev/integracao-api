@@ -61,7 +61,7 @@
 .image-container {
   position: relative;
   width: 400px;
-  height: 470px;
+  height: 507px;
   margin: 50px auto;
   border-radius: 15px;
   overflow: hidden;
@@ -277,10 +277,10 @@ a.relative:hover {
 /* Classe para o efeito de água, transparência e desfoque no fundo */
 .water-effect {
   background: rgba(0, 0, 0, 0.2); /* Cor branca com transparência */
-  backdrop-filter: blur(10px); /* Desfoque do fundo */
+  backdrop-filter: blur(20px); /* Desfoque do fundo */
   border-radius: 10px; /* Bordas arredondadas para um efeito mais suave */
   padding: 10px; /* Espaçamento interno */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para dar profundidade */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra para dar profundidade */
 }
 
 /* efeito agua */
@@ -289,7 +289,7 @@ a.relative:hover {
 @media screen and (max-width: 768px) {
   .mobile-text {
     font-size: 16px;
-    color: blue;
+    color: rgb(0, 0, 0);
   }
 }
 /* css mobile */
@@ -395,4 +395,62 @@ a.relative:hover {
   .to-yellow-50 {
     --tw-gradient-to: #000000 var(--tw-gradient-to-position);
   }
+}
+
+/* novo container - heroSection */
+.main-container {
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px); /* Blur effect */
+  position: relative;
+}
+
+.headline-container {
+  position: absolute;
+  top: -20px;
+  left: 20px;
+  padding: 10px 15px;
+  background: linear-gradient(45deg, #e5ff00, #00ff15);
+  border-radius: 10px;
+  color: rgb(0, 0, 0);
+  font-size: 24px;
+  font-weight: bold;
+  z-index: 10;
+}
+
+.container-content {
+  position: relative;
+  z-index: 1;
+}
+
+.saiba-mais {
+  display: inline-block;
+  padding: 10px 20px;
+  margin-top: 10px;
+  background: #1e90ff;
+  color: white;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.saiba-mais:hover {
+  background: #6495ed;
+}
+
+.target-container {
+  padding: 50px;
+  background: #f0f0f0;
+  margin-top: 20px;
+  border-radius: 10px;
+}
+html {
+  scroll-behavior: smooth;
+}
+
+.shadow-text {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }

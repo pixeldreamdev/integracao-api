@@ -3,9 +3,9 @@ import Image from 'next/image';
 
 const CTASection = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-r from-primary to-black py-24">
+    <section className="w-full h-full bg-gradient-to-b from-black via-transparent to-white/10 py-24">
       {/* Background decorative elements */}
-      <div className="absolute inset-0 opacity-10">
+      <div className="absolute inset-0 opacity-5">
         <div className="absolute -left-20 -top-20 h-96 w-96 rounded-full bg-white/20" />
         <div className="absolute -right-20 -bottom-20 h-96 w-96 rounded-full bg-white/20" />
       </div>
@@ -22,36 +22,51 @@ const CTASection = () => {
               especiais personalizadas para você
             </p>
 
-            <div className="mt-12 flex flex-wrap justify-center lg:justify-start gap-8 text-white/80 text-sm">
+            <div className="mt-12 flex flex-col items-center space-y-4 text-green-500 text-sm lg:text-lg">
               <div className="flex items-center gap-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-5 h-5 lg:w-6 lg:h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Aprovação em até 24h
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
                 Parcelas que cabem no seu bolso
               </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-2 ml-[-4.5rem] lg:ml-[-5.8rem]">
+                <svg
+                  className="w-5 h-5 lg:w-6 lg:h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M5 13l4 4L19 7"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Aprovação em até 24h
+              </div>
+              <div className="flex items-center gap-2 ml-[-7.5rem] lg:ml-[-9.5rem]">
+                <svg
+                  className="w-5 h-5 lg:w-6 lg:h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
                   />
                 </svg>
                 Melhores Taxas
@@ -60,14 +75,14 @@ const CTASection = () => {
           </div>
 
           {/* Image Section */}
-          <div className="w-full lg:w-1/2 flex justify-center lg:justify-start">
+          <div className="w-full lg:w-1/2 flex justify-center lg:justify-start xl:-ml-20">
             <div className="image-container">
               <Image
                 src="/images/casal.jpg"
                 alt="Imagem de exemplo"
                 width={400}
                 height={400}
-                className="object-cover rounded-lg image"
+                className="object-cover rounded-lg image xl:w-[500px] xl:h-[500px]"
               />
               <div className="info-overlay">
                 <button onClick={() => (window.location.href = '/autocontratacao')}>

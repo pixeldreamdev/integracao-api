@@ -1,0 +1,167 @@
+@layer reset, base, swiper;
+
+@import url('https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css') layer(base);
+
+@layer swiper {
+  /* Variáveis CSS para controle dinâmico */
+  :root {
+    --swiper-padding-top: clamp(1rem, 5vh, 8rem);
+    --swiper-padding-bottom: clamp(5rem, 10vh, 14rem);
+    --swiper-margin: clamp(1rem, 3vh, 5rem);
+    --slide-scale: 1;
+    --slide-height: clamp(180px, 40vh, 400px);
+    --active-scale: clamp(1.4, 4vw, 2);
+    --side-scale: clamp(0.8, 2vw, 1.3);
+  }
+
+  .swiper-container {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .swiper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: visible;
+  }
+
+  .swiper-wrapper {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: var(--swiper-padding-top) 0 var(--swiper-padding-bottom) 0;
+    margin: var(--swiper-margin) 0;
+  }
+
+  .swiper-slide {
+    scale: var(--slide-scale);
+    transition: all 250ms ease-in-out;
+    height: var(--slide-height);
+    width: 100%;
+    opacity: 0.5;
+    filter: blur(2px);
+
+    &.swiper-slide-active {
+      scale: var(--active-scale);
+      z-index: 10;
+      opacity: 1;
+      filter: blur(0);
+    }
+
+    &.swiper-slide-prev,
+    &.swiper-slide-next {
+      scale: var(--side-scale);
+      z-index: 5;
+      opacity: 0.7;
+      filter: blur(1px);
+    }
+  }
+
+  /* Ajuste dos breakpoints para melhor preenchimento */
+  @media (max-width: 360px) {
+    .swiper-slide {
+      --slide-height: 180px;
+      --active-scale: 1.8;
+      --side-scale: 0.8;
+    }
+  }
+
+  @media (min-width: 361px) and (max-width: 480px) {
+    .swiper-slide {
+      --slide-height: 200px;
+      --active-scale: 1.6;
+      --side-scale: 0.9;
+    }
+  }
+
+  @media (min-width: 481px) and (max-width: 767px) {
+    .swiper-slide {
+      --slide-height: 250px;
+      --active-scale: 1.5;
+      --side-scale: 1;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .swiper-slide {
+      --slide-height: 350px;
+      --active-scale: 1.5;
+      --side-scale: 1.2;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .swiper-slide {
+      --slide-height: 365px;
+      --active-scale: 1.5;
+      --side-scale: 1.3;
+    }
+  }
+
+  .swiper-slide img {
+    display: block;
+    border-radius: 1rem;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    user-select: none;
+    transition: all 250ms ease-in-out;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  /* Botões de navegação */
+  .swiper-button {
+    --button-size: clamp(2rem, 4vw, 3.5rem);
+    --button-position: clamp(1%, 3vw, 5%);
+
+    position: absolute;
+    width: var(--button-size);
+    height: var(--button-size);
+    background-color: #f04e23;
+    border-radius: 0.5rem;
+    transition: all 200ms ease-in-out;
+    z-index: 20;
+
+    &.swiper-button-prev {
+      left: var(--button-position);
+    }
+
+    &.swiper-button-next {
+      right: var(--button-position);
+    }
+
+    &::after {
+      font-size: clamp(1rem, 2vw, 1.5rem);
+      color: white;
+    }
+
+    &:hover {
+      background-color: #4a261f;
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 360px) {
+      display: none;
+    }
+  }
+}
+
+@layer reset {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
