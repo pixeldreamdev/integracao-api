@@ -123,9 +123,10 @@ const HeroSection = () => {
           <div className="space-y-4 md:space-x-4 md:space-y-0 flex flex-col md:flex-row items-center justify-center">
             <a
               href="/autocontratacao"
-              className="bg-yellow-500 hover:bg-yellow-600 text-black cursor-pointer inline-block rounded-full font-bold py-4 px-8 shadow-lg transition-all duration-300"
+              className="button relative bg-yellow-500 text-black font-bold py-4 px-8 rounded-full shadow-lg transform hover:scale-105 hover:bg-yellow-500 transition-all duration-300"
               onClick={e => handleClick(e, '/autocontratacao')}
             >
+              <span className="absolute inset-0 bg-yellow-500 opacity-0 transition-opacity duration-300 rounded-full"></span>
               <span className="relative z-10">Fazer Simulação</span>
             </a>
           </div>
