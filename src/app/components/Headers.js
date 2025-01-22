@@ -23,6 +23,21 @@ const Header = () => {
 
   const handleNavigation = (e, path) => {
     e.preventDefault();
+
+    if (path === '#services') {
+      const section = document.getElementById('services');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      setMenuOpen(false);
+      return;
+    }
+
+    if (path === '/') {
+      window.location.href = '/';
+      return;
+    }
+
     if (pathname !== path) {
       router.push(path);
     }
@@ -43,8 +58,8 @@ const Header = () => {
   };
 
   const menuItems = [
-    { path: '/quem-somos', label: 'Quem Somos' },
-    { path: '/servicos', label: 'Serviços' },
+    { path: 'quem-somos', label: 'Quem Somos' },
+    { path: '#services', label: 'Serviços' }, // Atualizado para scroll
     { path: '/contato', label: 'Contato' },
     { path: '/autocontratacao', label: 'Simular Empréstimo' },
   ];
@@ -73,10 +88,14 @@ const Header = () => {
                 <a
                   href={item.path}
                   onClick={e => handleNavigation(e, item.path)}
-                  className="relative text-lime-600 overflow-hidden rounded-full py-2 px-4 hover:text-yellow-500 transition-colors duration-300 group"
+                  className={`relative text-1xl font-bold overflow-hidden rounded-full py-2 px-4 transition-colors duration-300 group ${
+                    isScrolled ? 'text-white' : 'text-lime-600'
+                  }`}
                 >
                   <span className="absolute inset-0 bg-lime-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 rounded-full"></span>
-                  <span className="relative z-10">{item.label}</span>
+                  <span className="relative z-10 hover:text-black">
+                    <strong>{item.label}</strong>
+                  </span>
                 </a>
               </li>
             ))}
@@ -87,10 +106,14 @@ const Header = () => {
           <a
             href="/autocontratacao"
             onClick={e => handleNavigation(e, '/autocontratacao')}
-            className="relative text-lime-600 overflow-hidden rounded-full py-2 px-4 hover:text-yellow-500 transition-colors duration-300 group"
+            className={`text-xl font-bold rounded-full py-2 px-4 transition-colors duration-300 relative overflow-hidden group ${
+              isScrolled ? 'text-white' : 'text-lime-600'
+            }`}
           >
             <span className="absolute inset-0 bg-lime-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 rounded-full"></span>
-            <span className="relative z-10">Simular Empréstimo</span>
+            <span className="relative z-10 hover:text-black">
+              <strong>Simular Empréstimo</strong>
+            </span>
           </a>
         </div>
 

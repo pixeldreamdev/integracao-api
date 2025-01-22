@@ -5,6 +5,7 @@ module.exports = {
     './src/app/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/components/substep/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/autocontratacao/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,css}',
   ],
   theme: {
     extend: {
@@ -29,10 +30,27 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+        custom: ['Maison Neue', 'sans-serif'],
       },
       borderRadius: {
         DEFAULT: '0.375rem',
         large: '0.5rem',
+      },
+      zIndex: {
+        2: '2',
+      },
+      screens: {
+        'ipad-pro': { raw: '(min-width: 1024px) and (max-width: 1366px) and (min-height: 1024px)' },
+        '[375px]': { min: '375px', max: '390px' },
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        fadeIn: 'fadeIn 1s ease-out forwards',
       },
     },
   },

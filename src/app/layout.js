@@ -3,6 +3,7 @@ import Header from './components/Headers';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Open_Sans } from 'next/font/google';
 import Image from 'next/image';
+import Footer from './components/Footer';
 
 const font = Open_Sans({
   weight: ['400', '500'],
@@ -21,10 +22,7 @@ export default function RootLayout({ children }) {
         <Header />
         <SpeedInsights />
         <main className="flex-grow">{children} </main>
-
-        <footer className="bg-gray-100 py-4 text-center">
-          <p>&copy; 2024 Lwg Cred. Todos os direitos reservados.</p>
-        </footer>
+        <Footer />
       </body>
     </html>
   );

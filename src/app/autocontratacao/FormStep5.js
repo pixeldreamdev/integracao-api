@@ -23,8 +23,8 @@ const FormStep5 = ({ nextStep, prevStep, handleChange, values }) => {
         convenioId: values.convenioId,
         tabelaJurosId: values.tabelaJurosId,
         diaRecebimentoId: Number(values.diaRecebimento),
-        rota: process.env.NEXT_PUBLIC_ENV === 'homologacao' ? null : values.numeroInstalacaoReal,
-        leitura: process.env.NEXT_PUBLIC_ENV === 'homologacao' ? null : values.dataLeituraReal,
+        rota: process.env.NEXT_PUBLIC_ENV === 'homolog' ? null : values.numeroInstalacaoReal,
+        leitura: process.env.NEXT_PUBLIC_ENV === 'homolog' ? null : values.dataLeituraReal,
         vencimento: null,
       };
 
