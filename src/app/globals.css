@@ -12,11 +12,6 @@
   --color-background: #ffffff;
   --color-text: #333333;
   --color-text-light: #666666;
-  --primary: #00a3ff;
-}
-
-body {
-  @apply bg-gray-900;
 }
 
 /* CTASection - efeito Blur */
@@ -24,17 +19,6 @@ body {
   position: relative;
   width: 400px;
   height: 507px;
-  margin: 50px auto;
-  border-radius: 15px;
-  overflow: hidden;
-  cursor: pointer;
-}
-
-/* CTASection - efeito Blur */
-.image-container {
-  position: relative;
-  width: 400px;
-  height: 470px;
   margin: 50px auto;
   border-radius: 15px;
   overflow: hidden;
@@ -56,7 +40,7 @@ body {
   left: 0;
   width: 100%;
   height: auto;
-  background: rgba(0, 0, 0, 0.7);
+  /* background: rgba(0, 0, 0, 0.7); */
   padding: 20px;
   color: white;
   transition: all 0.5s ease;
@@ -250,7 +234,7 @@ a.relative:hover {
 /* Classe para o efeito de água, transparência e desfoque no fundo */
 .water-effect {
   background: rgba(0, 0, 0, 0.2); /* Cor branca com transparência */
-  backdrop-filter: blur(10px); /* Desfoque do fundo */
+  backdrop-filter: blur(20px); /* Desfoque do fundo */
   border-radius: 10px; /* Bordas arredondadas para um efeito mais suave */
   padding: 10px; /* Espaçamento interno */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra para dar profundidade */
@@ -262,7 +246,7 @@ a.relative:hover {
 @media screen and (max-width: 768px) {
   .mobile-text {
     font-size: 16px;
-    color: blue;
+    color: rgb(0, 0, 0);
   }
 }
 /* css mobile */
@@ -426,34 +410,4 @@ html {
 
 .shadow-text {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-@keyframes fade-down {
-  0% {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fade-up {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-down {
-  animation: fade-down 1s ease-out;
-}
-
-.animate-fade-up {
-  animation: fade-up 1s ease-out;
 }
