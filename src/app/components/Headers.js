@@ -58,7 +58,7 @@ const Header = () => {
   };
 
   const menuItems = [
-    { path: '/quem-somos', label: 'Quem Somos' },
+    { path: 'quem-somos', label: 'Quem Somos' },
     { path: '#services', label: 'Serviços' }, // Atualizado para scroll
     { path: '/contato', label: 'Contato' },
     { path: '/autocontratacao', label: 'Simular Empréstimo' },

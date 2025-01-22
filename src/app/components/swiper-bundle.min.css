@@ -129,7 +129,7 @@
     position: absolute;
     width: var(--button-size);
     height: var(--button-size);
-    background-color: #f04e23;
+    background-color: #00ff15;
     border-radius: 0.5rem;
     transition: all 200ms ease-in-out;
     z-index: 20;
@@ -148,7 +148,7 @@
     }
 
     &:hover {
-      background-color: #4a261f;
+      background-color: #000000;
       transform: scale(1.1);
     }
 

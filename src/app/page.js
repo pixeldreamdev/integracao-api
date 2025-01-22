@@ -7,7 +7,6 @@ import PopupAlert from './components/PopupAlert';
 import { FaEnvelope, FaWhatsapp, FaArrowUp } from 'react-icons/fa';
 import SwiperComponent from './components/SwiperComponent';
 import WhyChooseSection from './components/WhyChooseSection';
-import Link from 'next/link';
 
 export default function Home() {
   const [isWhyVisible, setIsWhyVisible] = useState(false);
@@ -82,9 +81,7 @@ export default function Home() {
         <SwiperComponent />
         {/* <span className="block w-full h-1 bg-gradient-to-r from-primary via-black to-primary animate-pulse"></span> */}
         <CTASection />
-        <main className="container mx-auto px-4 py-8 -mt-8">
-          <WhyChooseSection />
-        </main>
+        <WhyChooseSection />
 
         {/* Botão flutuante para voltar ao topo */}
         <button
@@ -96,77 +93,6 @@ export default function Home() {
         >
           <FaArrowUp className="text-xl" />
         </button>
-
-        <footer className="bg-black text-white py-8">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Sobre a LwgCred</h3>
-                <p>
-                  Somos uma empresa comprometida em oferecer as melhores soluções financeiras para
-                  nossos clientes.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Links Rápidos</h3>
-                <ul className="space-y-2">
-                  <li>
-                    <Link
-                      href="/sobre"
-                      className="hover:underline cursor-pointer transition-colors"
-                    >
-                      Quem Somos
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="#services"
-                      className="hover:underline cursor-pointer transition-colors"
-                    >
-                      Serviços
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/contato"
-                      className="hover:underline cursor-pointer transition-colors"
-                    >
-                      Contato
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/autocontratacao"
-                      className="hover:underline cursor-pointer transition-colors"
-                    >
-                      Simular Empréstimo
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Contato</h3>
-                <p className="flex items-center mb-2 hover:text-primary transition-colors">
-                  <FaEnvelope className="mr-2" />
-                  <a href="mailto:lwgcred@gmail.com" className="hover:underline cursor-pointer">
-                    lwgcred@gmail.com
-                  </a>
-                </p>
-                <p className="flex items-center hover:text-primary transition-colors">
-                  <FaWhatsapp className="mr-2 text-green-500" />
-                  <a
-                    href="https://wa.me/5511958255717"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline cursor-pointer"
-                  >
-                    (11) 95825-5717
-                  </a>
-                </p>
-              </div>
-            </div>
-          </div>
-        </footer>
       </div>
     </div>
   );

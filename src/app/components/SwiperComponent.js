@@ -20,13 +20,15 @@ const SwiperComponent = () => {
       }
     );
 
-    if (contentRef.current) {
-      observer.observe(contentRef.current);
+    const currentElement = contentRef.current;
+
+    if (currentElement) {
+      observer.observe(currentElement);
     }
 
     return () => {
-      if (contentRef.current) {
-        observer.unobserve(contentRef.current);
+      if (currentElement) {
+        observer.unobserve(currentElement);
       }
     };
   }, []);
@@ -34,10 +36,10 @@ const SwiperComponent = () => {
   return (
     <section
       id="services"
-      className="min-h-screen w-full relative bg-gray-50 flex items-center justify-center"
+      className="min-h-screen w-full relative bg-gray-900 flex items-center justify-center"
     >
       <div className="absolute inset-0 z-0">
-        <div className="w-full h-full bg-gradient-to-b from-white via-transparent to-black"></div>
+        <div className="w-full h-full bg-gradient-to-b from-gray-900 via-transparent to-gray-900"></div>
       </div>
 
       <div ref={contentRef} className="container mx-auto px-4 relative z-10 py-8 md:py-16">
@@ -46,13 +48,13 @@ const SwiperComponent = () => {
             className={`text-[2.95rem] text-center md:text-6xl font-black leading-tight mt-[1rem]
               transition-all duration-700 ease-out
               ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}
-              bg-gradient-to-r from-green-500 to-black bg-clip-text text-transparent
+              bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent
               tracking-tight font-sans py-4`}
           >
             Nossos Serviços
           </h2>
           <p
-            className={`text-gray-600 max-w-2xl mx-auto text-lg md:text-xl
+            className={`text-white max-w-2xl mx-auto text-lg md:text-xl
               transition-all duration-700 delay-100 ease-out
               ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'}`}
           >

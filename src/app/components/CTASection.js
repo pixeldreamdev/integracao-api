@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 const CTASection = () => {
   return (
-    <section className="w-full h-full bg-gradient-to-b from-black via-transparent to-white/10 py-24">
+    <section className="w-full h-full bg-gradient-to-b from-gray-900 via-transparent to-gray-900 py-24">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute -left-20 -top-20 h-96 w-96 rounded-full bg-white/20" />
