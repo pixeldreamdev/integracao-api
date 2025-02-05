@@ -1,5 +1,5 @@
 'use client';
-
+import CountUp from 'react-countup';
 import { AnimatedSection } from '../components/AnimatedSection';
 import Image from 'next/image';
 import { Suspense, useEffect, useState } from 'react';
@@ -8,6 +8,10 @@ import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { GiOnTarget } from 'react-icons/gi';
+import { MdOutlineEmojiObjects } from 'react-icons/md';
+import { FcIdea } from 'react-icons/fc';
+import { FaUserFriends } from 'react-icons/fa';
 
 const LoadingFallback = () => (
   <div className="w-full h-full flex items-center justify-center">
@@ -51,12 +55,12 @@ const quemSomosData = {
       {
         titulo: 'Transparência',
         descricao: 'Clareza em todas as nossas relações',
-        icone: '🤝',
+        icone: <FaUserFriends size={40} />,
       },
       {
         titulo: 'Inovação',
         descricao: 'Buscando sempre as melhores soluções',
-        icone: '💡',
+        icone: <FcIdea size={40} />,
       },
       {
         titulo: 'Empatia',
@@ -191,15 +195,35 @@ const QuemSomos = () => {
               <p className="text-gray-300 text-lg">{quemSomosData.apresentacao.descricao}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {quemSomosData.apresentacao.estatisticas.map((stat, index) => (
-                <div
-                  key={index}
-                  className="text-center p-4 bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 hover:border-primary/50 transition-all duration-300"
-                >
-                  <div className="text-3xl md:text-4xl font-bold text-primary">{stat.numero}</div>
-                  <div className="text-sm text-gray-400">{stat.texto}</div>
-                </div>
-              ))}
+              {quemSomosData.apresentacao.estatisticas.map((stat, index) => {
+                let suffix = '';
+
+                // Definindo o sufixo com base no texto
+                if (stat.texto.includes('Anos no Mercado')) {
+                  suffix = '+';
+                } else if (stat.texto.includes('Clientes Atendidos')) {
+                  suffix = 'M+';
+                } else if (stat.texto.includes('em Créditos Liberados')) {
+                  suffix = 'M+';
+                }
+
+                return (
+                  <div
+                    key={index}
+                    className="text-center p-4 bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 hover:border-primary/50 transition-all duration-300"
+                  >
+                    <div className="text-3xl md:text-4xl font-bold text-primary">
+                      <CountUp
+                        end={parseFloat(stat.numero.replace(/[^0-9.]/g, ''))}
+                        duration={9.5}
+                        separator=","
+                        suffix={suffix} // Adiciona o sufixo apropriado
+                      />
+                    </div>
+                    <div className="text-sm text-white">{stat.texto}</div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -209,8 +233,8 @@ const QuemSomos = () => {
           <AnimatedSection animation="slideIn" className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-500" />
             <div className="relative bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:border-primary/50 transition-all duration-500">
-              <span className="text-4xl mb-4 block transform group-hover:scale-110 transition-transform duration-300">
-                🎯
+              <span className="text-4xl mb-4 block transform group-hover:scale-105 transition-transform duration-300 text-yellow-500">
+                <GiOnTarget size={40} />
               </span>
               <h3 className="text-xl font-bold mb-3 text-white group-hover:text-primary transition-colors">
                 {quemSomosData.institucional.missao.titulo}
@@ -224,8 +248,8 @@ const QuemSomos = () => {
           <AnimatedSection animation="slideIn" delay={0.2} className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-500" />
             <div className="relative bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:border-primary/50 transition-all duration-500">
-              <span className="text-4xl mb-4 block transform group-hover:scale-110 transition-transform duration-300">
-                🔭
+              <span className="text-4xl mb-4 block transform group-hover:scale-105 transition-transform duration-300 text-yellow-500">
+                <MdOutlineEmojiObjects size={40} />
               </span>
               <h3 className="text-xl font-bold mb-3 text-white group-hover:text-primary transition-colors">
                 {quemSomosData.institucional.visao.titulo}
@@ -248,7 +272,7 @@ const QuemSomos = () => {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-500" />
               <div className="relative bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:border-primary/50 transition-all duration-500">
-                <span className="text-4xl mb-4 block transform group-hover:scale-110 transition-transform duration-300">
+                <span className="text-4xl mb-4 block transform group-hover:scale-105 transition-transform duration-300 text-yellow-500">
                   {valor.icone}
                 </span>
                 <h3 className="text-xl font-bold mb-3 text-white group-hover:text-primary transition-colors">
@@ -268,28 +292,88 @@ const QuemSomos = () => {
             {quemSomosData.equipe.titulo}
           </h2>
           <p className="text-center text-gray-300 mb-8">{quemSomosData.equipe.descricao}</p>
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-8">
-            {quemSomosData.equipe.membros.map((membro, index) => (
-              <AnimatedSection
-                key={membro.nome}
-                animation="scaleIn"
-                delay={index * 0.2}
-                className="text-center"
-              >
-                <div className="relative w-40 h-40 mx-auto mb-4 rounded-3xl overflow-hidden group">
-                  <Image
-                    src={membro.foto}
-                    alt={`Foto de ${membro.nome}, ${membro.cargo}`}
-                    fill
-                    className="object-cover transform group-hover:scale-110 transition-transform duration-300"
-                  />
-                </div>
-                <h3 className="text-xl font-bold text-white">{membro.nome}</h3>
-                <p className="text-gray-400">{membro.cargo}</p>
-              </AnimatedSection>
-            ))}
+          <div className="flex justify-center">
+            <div className="relative w-40 h-40 mb-4 rounded-3xl overflow-hidden group">
+              <Image
+                src={quemSomosData.equipe.membros[0].foto}
+                alt={`Foto de ${quemSomosData.equipe.membros[0].nome}, ${quemSomosData.equipe.membros[0].cargo}`}
+                fill
+                className="object-cover transform group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
           </div>
+          <h3 className="text-xl font-bold text-white text-center">
+            {quemSomosData.equipe.membros[0].nome}
+          </h3>
+          <p className="text-gray-400 text-center">{quemSomosData.equipe.membros[0].cargo}</p>
         </AnimatedSection> */}
+
+        {/* Depoimentos */}
+        {/* <div className="mb-16">
+          <AnimatedSection animation="fadeIn" className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-white">
+              O que dizem nossos clientes
+            </h2>
+          </AnimatedSection>
+
+          <AnimatedSection animation="fadeIn" className="relative">
+            <Swiper
+              modules={[Autoplay, Navigation, Pagination]}
+              spaceBetween={30}
+              slidesPerView={1}
+              breakpoints={{
+                768: {
+                  slidesPerView: 2,
+                },
+              }}
+              autoplay={{
+                delay: 5000,
+                disableOnInteraction: false,
+              }}
+              navigation={{
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+              }}
+              pagination={{
+                clickable: true,
+                el: '.swiper-pagination',
+              }}
+              className="py-8 px-4"
+            >
+              {quemSomosData.depoimentos.map((depoimento, index) => (
+                <SwiperSlide key={index}>
+                  <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 border border-white/10 h-full flex flex-col hover:border-primary/50 transition-all duration-300">
+                    <div className="flex flex-col md:flex-row items-center gap-6 mb-6">
+                      <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden flex-shrink-0">
+                        <Image
+                          src={depoimento.foto}
+                          alt={depoimento.autor}
+                          fill
+                          className="object-cover hover:scale-110 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="text-center md:text-left">
+                        <p className="font-bold text-xl text-white mb-1">{depoimento.autor}</p>
+                        <p className="text-sm text-gray-400">{depoimento.cargo}</p>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute -top-4 left-0 text-5xl text-primary">"</span>
+                      <p className="text-gray-300 italic text-lg leading-relaxed pt-2">
+                        {depoimento.texto}
+                      </p>
+                    </div>
+                  </div>
+                </SwiperSlide>
+              ))} */}
+
+        {/* Controles de navegação customizados */}
+        {/* <div className="swiper-button-prev !text-primary after:!text-2xl"></div>
+              <div className="swiper-button-next !text-primary after:!text-2xl"></div>
+              <div className="swiper-pagination !bottom-0"></div>
+            </Swiper>
+          </AnimatedSection>
+        </div> */}
       </section>
     </div>
   );
