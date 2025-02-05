@@ -202,7 +202,7 @@ const QuemSomos = () => {
                 if (stat.texto.includes('Anos no Mercado')) {
                   suffix = '+';
                 } else if (stat.texto.includes('Clientes Atendidos')) {
-                  suffix = 'M+';
+                  suffix = 'k+';
                 } else if (stat.texto.includes('em Créditos Liberados')) {
                   suffix = 'M+';
                 }
