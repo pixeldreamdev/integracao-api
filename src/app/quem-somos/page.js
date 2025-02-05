@@ -33,7 +33,7 @@ const quemSomosData = {
     descricao:
       'Somos especialistas em soluções financeiras, focados em transformar a vida das pessoas através de crédito consciente e orientação financeira personalizada.',
     estatisticas: [
-      { numero: '5+', texto: 'Anos no Mercado' },
+      { numero: '3+', texto: 'Anos no Mercado' },
       { numero: '10k+', texto: 'Clientes Atendidos' },
       { numero: '500M+', texto: 'em Créditos Liberados' },
     ],
