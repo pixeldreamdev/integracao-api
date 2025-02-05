@@ -126,7 +126,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="relative group">
                 <Link
-                  href="#services"
+                  href="/quem-somos"
                   className="text-gray-300 transition-colors cursor-pointer inline-block p-1 rounded-lg relative overflow-hidden hover:bg-gradient-to-r hover:from-primary hover:to-primary/50 group-hover:text-black w-fit"
                 >
                   Quem Somos
