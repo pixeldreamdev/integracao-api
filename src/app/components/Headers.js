@@ -15,10 +15,18 @@ const Header = () => {
       setIsScrolled(window.scrollY > 50);
     };
 
-    handleScroll(); // Força a verificação inicial para aplicar efeito ao carregar.
+    handleScroll(); // Verifica a posição inicial do scroll
     window.addEventListener('scroll', handleScroll);
 
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    // Adiciona margin-top na seção de serviços para evitar sobreposição pelo header fixo
+    const section = document.getElementById('services');
+    if (section) {
+      section.style.scrollMarginTop = '120px'; // Ajuste conforme a altura do header
+    }
   }, []);
 
   const handleNavigation = (e, path) => {
@@ -27,7 +35,9 @@ const Header = () => {
     if (path === '#services') {
       const section = document.getElementById('services');
       if (section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => {
+          section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
       }
       setMenuOpen(false);
       return;
@@ -59,7 +69,7 @@ const Header = () => {
 
   const menuItems = [
     { path: 'quem-somos', label: 'Quem Somos' },
-    { path: '#services', label: 'Serviços' }, // Atualizado para scroll
+    { path: '#services', label: 'Serviços' },
     { path: 'https://wa.me/5511958255717', label: 'Contato' },
     { path: '/autocontratacao', label: 'Simular Empréstimo' },
   ];
