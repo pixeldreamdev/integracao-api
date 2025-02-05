@@ -411,3 +411,11 @@ html {
 .shadow-text {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
+/* Adicione isso ao seu arquivo de estilos globais ou Tailwind CSS */
+@layer utilities {
+  .transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+}

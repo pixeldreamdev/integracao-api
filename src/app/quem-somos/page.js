@@ -1,132 +1,298 @@
-import Image from 'next/image';
+'use client';
 
-// Dados da seção
+import { AnimatedSection } from '../components/AnimatedSection';
+import Image from 'next/image';
+import { Suspense, useEffect, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+
+const LoadingFallback = () => (
+  <div className="w-full h-full flex items-center justify-center">
+    <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
+  </div>
+);
+
 const quemSomosData = {
-  titulo: 'Nossa História',
-  subtitulo: 'Transformando sonhos em realidade através de soluções financeiras personalizadas',
-  descricao: [
-    'Desde 2018, a LWG Cred tem se dedicado a transformar a vida das pessoas através de soluções financeiras inteligentes e acessíveis. Nascemos com um propósito claro: democratizar o acesso ao crédito de forma transparente e humanizada.',
-    'Nossa equipe é formada por profissionais apaixonados por fazer a diferença na vida das pessoas, sempre buscando as melhores condições e taxas do mercado para nossos clientes.',
-  ],
-  missao: {
-    titulo: 'Propósito & Missão',
-    texto:
-      'Capacitar pessoas e empresas a realizarem seus objetivos financeiros, oferecendo soluções personalizadas e educação financeira que transformam vidas.',
+  // Seção Hero
+  hero: {
+    titulo: 'Nossa História',
+    subtitulo: 'Transformando sonhos em realidade desde 2022',
+    imagem: '/images/image1.jpg',
   },
-  diferenciais: [
-    {
-      titulo: 'Atendimento Humanizado',
+
+  // Apresentação da Empresa
+  apresentacao: {
+    titulo: 'LWG Cred',
+    descricao:
+      'Somos especialistas em soluções financeiras, focados em transformar a vida das pessoas através de crédito consciente e orientação financeira personalizada.',
+    estatisticas: [
+      { numero: '5+', texto: 'Anos no Mercado' },
+      { numero: '10k+', texto: 'Clientes Atendidos' },
+      { numero: '500M+', texto: 'em Créditos Liberados' },
+    ],
+  },
+
+  // Missão, Visão e Valores
+  institucional: {
+    missao: {
+      titulo: 'Nossa Missão',
       descricao:
-        'Cada cliente é único, e nossa equipe está preparada para entender suas necessidades específicas',
+        'Democratizar o acesso ao crédito de forma transparente e humanizada, contribuindo para o desenvolvimento financeiro dos nossos clientes.',
+    },
+    visao: {
+      titulo: 'Nossa Visão',
+      descricao:
+        'Ser referência nacional em soluções financeiras, reconhecida pela excelência no atendimento e compromisso com o sucesso dos clientes.',
+    },
+    valores: [
+      {
+        titulo: 'Transparência',
+        descricao: 'Clareza em todas as nossas relações',
+        icone: '🤝',
+      },
+      {
+        titulo: 'Inovação',
+        descricao: 'Buscando sempre as melhores soluções',
+        icone: '💡',
+      },
+      {
+        titulo: 'Empatia',
+        descricao: 'Compreendendo as necessidades individuais',
+        icone: '❤️',
+      },
+    ],
+  },
+
+  // Time e Liderança
+  equipe: {
+    titulo: 'Nossa Equipe',
+    descricao: 'Conheça as pessoas que fazem a diferença',
+    membros: [
+      {
+        nome: 'Gilma Araújo',
+        cargo: 'CEO',
+        foto: '/images/ceo.png',
+      },
+    ],
+  },
+
+  // Depoimentos
+  depoimentos: [
+    {
+      texto: 'A LWG Cred mudou minha vida financeira completamente. O atendimento foi excepcional!',
+      autor: 'Maria Santos',
+      cargo: 'Empresária',
+      foto: '/images/cartaoconsignado.jpeg',
     },
     {
-      titulo: 'Transparência Total',
-      descricao: 'Todas as informações são apresentadas de forma clara e objetiva, sem surpresas',
+      texto: 'A LWG Cred mudou minha vida financeira completamente. O atendimento foi excepcional!',
+      autor: 'Maria Santos',
+      cargo: 'Empresária',
+      foto: '/images/fgts.jpg',
     },
     {
-      titulo: 'Melhores Condições',
-      descricao:
-        'Parceria com as principais instituições financeiras para oferecer as taxas mais competitivas',
+      texto: 'A LWG Cred mudou minha vida financeira completamente. O atendimento foi excepcional!',
+      autor: 'Maria Santos',
+      cargo: 'Empresária',
+      foto: '/images/bolsafamilia.jpg',
+    },
+    {
+      texto: 'A LWG Cred mudou minha vida financeira completamente. O atendimento foi excepcional!',
+      autor: 'Maria Santos',
+      cargo: 'Empresária',
+      foto: '/images/pote.png',
     },
   ],
-  valores: [
-    {
-      titulo: 'Integridade',
-      descricao: 'Compromisso inabalável com a ética e transparência em todas as nossas relações',
-      icone: '🤝',
-    },
-    {
-      titulo: 'Inovação',
-      descricao:
-        'Busca constante por soluções criativas e tecnológicas para melhor atender nossos clientes',
-      icone: '💡',
-    },
-    {
-      titulo: 'Empatia',
-      descricao: 'Compreensão profunda das necessidades e sonhos de cada cliente',
-      icone: '❤️',
-    },
-  ],
-  imagem: '/images/image1.jpg',
 };
 
-export default function QuemSomos() {
+const QuemSomos = () => {
+  const [isVisible, setIsVisible] = useState({});
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          setIsVisible(prev => ({
+            ...prev,
+            [entry.target.id]: entry.isIntersecting,
+          }));
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const sections = document.querySelectorAll('[data-observe]');
+    sections.forEach(section => observer.observe(section));
+
+    return () => {
+      sections.forEach(section => observer.unobserve(section));
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-black">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-background via-background/95 to-background/90">
       {/* Hero Section */}
-      <section className="relative h-[50vh] min-h-[400px] w-full overflow-hidden">
-        <Image
-          src={quemSomosData.imagem}
-          alt="LWG Cred Background"
-          fill
-          className="object-cover opacity-30"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center px-4 space-y-6">
-            <h1 className="text-5xl md:text-7xl font-black text-white animate-fade-down">
-              {quemSomosData.titulo}
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto animate-fade-up">
-              {quemSomosData.subtitulo}
-            </p>
+      <section
+        id="hero"
+        data-observe
+        className={`relative min-h-[80vh] flex items-center overflow-hidden transition-opacity duration-1000 ${
+          isVisible['hero'] ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <Suspense fallback={<LoadingFallback />}>
+          <div className="absolute inset-0">
+            <Image
+              src={quemSomosData.hero.imagem}
+              alt="LWG Cred Background"
+              fill
+              className="object-cover opacity-45 transform scale-105 hover:scale-100 transition-transform duration-1000"
+              priority
+            />
           </div>
+        </Suspense>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/90" />
+
+        <div className="container mx-auto px-4 relative z-10">
+          <AnimatedSection animation="fadeIn" className="text-center space-y-6">
+            <h1 className="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-light via-primary to-secondary">
+              {quemSomosData.hero.titulo}
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto">
+              {quemSomosData.hero.subtitulo}
+            </p>
+          </AnimatedSection>
         </div>
       </section>
 
       {/* Conteúdo Principal */}
-      <section className="container mx-auto px-4 py-20">
-        {/* Nossa História */}
-        <div className="max-w-4xl mx-auto space-y-6 mb-20">
-          {quemSomosData.descricao.map((paragrafo, index) => (
-            <p key={index} className="text-gray-300 text-lg leading-relaxed animate-fade-up">
-              {paragrafo}
-            </p>
-          ))}
-        </div>
-
-        {/* Propósito & Missão */}
-        <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-8 md:p-12 mb-20 animate-fade-up">
-          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">
-            {quemSomosData.missao.titulo}
-          </h2>
-          <p className="text-xl text-gray-300 leading-relaxed">{quemSomosData.missao.texto}</p>
-        </div>
-
-        {/* Diferenciais */}
-        <div className="grid md:grid-cols-3 gap-8 mb-20">
-          {quemSomosData.diferenciais.map((diferencial, index) => (
-            <div
-              key={diferencial.titulo}
-              className="bg-black/50 rounded-xl p-6 backdrop-blur-sm hover:bg-black/60 transition-all animate-fade-up"
-            >
-              <h3 className="text-primary text-xl font-bold mb-4">{diferencial.titulo}</h3>
-              <p className="text-gray-300">{diferencial.descricao}</p>
+      <section className="container mx-auto px-4 -mt-32 relative z-20">
+        {/* Apresentação */}
+        <div
+          id="apresentacao"
+          data-observe
+          className={`bg-black/50 backdrop-blur-lg rounded-2xl p-8 md:p-12 mb-16 transition-all duration-1000 ${
+            isVisible['apresentacao'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+        >
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="space-y-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-primary">
+                {quemSomosData.apresentacao.titulo}
+              </h2>
+              <p className="text-gray-300 text-lg">{quemSomosData.apresentacao.descricao}</p>
             </div>
-          ))}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {quemSomosData.apresentacao.estatisticas.map((stat, index) => (
+                <div
+                  key={index}
+                  className="text-center p-4 bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 hover:border-primary/50 transition-all duration-300"
+                >
+                  <div className="text-3xl md:text-4xl font-bold text-primary">{stat.numero}</div>
+                  <div className="text-sm text-gray-400">{stat.texto}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Missão e Visão */}
+        <div className="grid md:grid-cols-2 gap-8 mb-16">
+          <AnimatedSection animation="slideIn" className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-500" />
+            <div className="relative bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:border-primary/50 transition-all duration-500">
+              <span className="text-4xl mb-4 block transform group-hover:scale-110 transition-transform duration-300">
+                🎯
+              </span>
+              <h3 className="text-xl font-bold mb-3 text-white group-hover:text-primary transition-colors">
+                {quemSomosData.institucional.missao.titulo}
+              </h3>
+              <p className="text-gray-400 group-hover:text-gray-300 transition-colors">
+                {quemSomosData.institucional.missao.descricao}
+              </p>
+            </div>
+          </AnimatedSection>
+
+          <AnimatedSection animation="slideIn" delay={0.2} className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-500" />
+            <div className="relative bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:border-primary/50 transition-all duration-500">
+              <span className="text-4xl mb-4 block transform group-hover:scale-110 transition-transform duration-300">
+                🔭
+              </span>
+              <h3 className="text-xl font-bold mb-3 text-white group-hover:text-primary transition-colors">
+                {quemSomosData.institucional.visao.titulo}
+              </h3>
+              <p className="text-gray-400 group-hover:text-gray-300 transition-colors">
+                {quemSomosData.institucional.visao.descricao}
+              </p>
+            </div>
+          </AnimatedSection>
         </div>
 
         {/* Valores */}
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-12 animate-fade-down">
-          Nossos Valores
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {quemSomosData.valores.map(valor => (
-            <div
+        <div className="grid md:grid-cols-3 gap-8 mb-16">
+          {quemSomosData.institucional.valores.map((valor, index) => (
+            <AnimatedSection
               key={valor.titulo}
-              className="group bg-gradient-to-b from-black/50 to-black/30 p-8 rounded-xl backdrop-blur-sm
-                hover:from-primary/10 hover:to-primary/5 transition-all duration-300 animate-fade-up"
+              animation="slideIn"
+              delay={index * 0.2}
+              className="relative group"
             >
-              <span className="text-4xl mb-4 block">{valor.icone}</span>
-              <h3 className="text-primary text-xl font-bold mb-4 group-hover:scale-105 transition-transform">
-                {valor.titulo}
-              </h3>
-              <p className="text-gray-300">{valor.descricao}</p>
-            </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-500" />
+              <div className="relative bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:border-primary/50 transition-all duration-500">
+                <span className="text-4xl mb-4 block transform group-hover:scale-110 transition-transform duration-300">
+                  {valor.icone}
+                </span>
+                <h3 className="text-xl font-bold mb-3 text-white group-hover:text-primary transition-colors">
+                  {valor.titulo}
+                </h3>
+                <p className="text-gray-400 group-hover:text-gray-300 transition-colors">
+                  {valor.descricao}
+                </p>
+              </div>
+            </AnimatedSection>
           ))}
         </div>
+
+        {/* Equipe */}
+        {/* <AnimatedSection animation="fadeIn" className="mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-12">
+            {quemSomosData.equipe.titulo}
+          </h2>
+          <p className="text-center text-gray-300 mb-8">{quemSomosData.equipe.descricao}</p>
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-8">
+            {quemSomosData.equipe.membros.map((membro, index) => (
+              <AnimatedSection
+                key={membro.nome}
+                animation="scaleIn"
+                delay={index * 0.2}
+                className="text-center"
+              >
+                <div className="relative w-40 h-40 mx-auto mb-4 rounded-3xl overflow-hidden group">
+                  <Image
+                    src={membro.foto}
+                    alt={`Foto de ${membro.nome}, ${membro.cargo}`}
+                    fill
+                    className="object-cover transform group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <h3 className="text-xl font-bold text-white">{membro.nome}</h3>
+                <p className="text-gray-400">{membro.cargo}</p>
+              </AnimatedSection>
+            ))}
+          </div>
+        </AnimatedSection> */}
       </section>
-    </main>
+    </div>
   );
-}
+};
+
+export default QuemSomos;
